@@ -1,0 +1,43 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Compiladores.Arbol.BaseNode;
+using Compiladores.Semantico;
+using Compiladores.Semantico.Tipos;
+using Compiladores.Arbol.StatementNodes;
+namespace Compiladores.Arbol.BinaryNodes
+{
+    class AutoOperacionRestaNode:BinaryOperatorNode
+    {
+
+        public override TiposBases ValidateSemantic()
+        {
+
+            TiposBases expresion2;
+            if (OperadorDerecho is CallFuntionNode)
+                (OperadorDerecho as CallFuntionNode).claseActual = ContenidoStack._StackInstance.claseActual;
+            else if (OperadorIzquierdo is CallFuntionNode)
+                (OperadorDerecho as CallFuntionNode).claseActual = ContenidoStack._StackInstance.claseActual;
+
+                expresion2 = OperadorDerecho.ValidateSemantic();
+            if (OperadorIzquierdo == null)
+                return expresion2;
+            if (!(OperadorIzquierdo is Identificadores.IdentificadoresExpressionNode))
+                throw new SemanticoException("no se puede asignar literales  fila " + token.Fila + " columna " + token.Columna);
+
+            var expresion1 = OperadorIzquierdo.ValidateSemantic();
+            if ((expresion1 is IntTipo || expresion1 is FloatTipo) && (expresion2 is FloatTipo || expresion2 is IntTipo))
+                if (expresion1.GetType() == expresion2.GetType())
+                    return expresion1;
+            if (expresion1 is FloatTipo || expresion2 is FloatTipo)
+                return new FloatTipo();
+            if (expresion1 is IntTipo && expresion1 is IntTipo)
+                return new IntTipo();
+
+            throw new SemanticoException("no se puede restar" + expresion1 + " con " + expresion2 + "fila " + token.Fila + " columna " + token.Columna);
+        }
+
+    }
+}

@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D9FB7805-873C-46DA-8B88-D083A09939FB}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Compiladores</RootNamespace>
+    <AssemblyName>Compiladores</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Arbol\AccesoresNode\ArrayAccesor.cs" />
+    <Compile Include="Arbol\AccesoresNode\PuntoAccesor.cs" />
+    <Compile Include="Arbol\BaseNode\AccesorNode.cs" />
+    <Compile Include="Arbol\BaseNode\BinaryOperatorNode.cs" />
+    <Compile Include="Arbol\BaseNode\ExpressionNode.cs" />
+    <Compile Include="Arbol\BaseNode\StatementNode.cs" />
+    <Compile Include="Arbol\BaseNode\UnaryOperatorNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\AsignacionNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\AsNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\AutoDeplazamientoDerechaNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\AutoDeplazamientoIzquierdaNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\AutoOperacionAndPorBitNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\AutoOperacionDivisionNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\AutoOperacionMultiplicacionNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\AutoOperacionOExclusivoPorBitNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\AutoOperacionOrPorBitNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\AutoOperacionResiduoNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\AutoOperacionRestaNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\AutoOperacionSumaNode.cs" />
+    <Compile Include="Arbol\Identificadores\IdentificadoresStatementNode.cs" />
+    <Compile Include="Arbol\Literales\ArrayNode.cs" />
+    <Compile Include="Arbol\StatementNodes\AssignasionVariable.cs" />
+    <Compile Include="Arbol\StatementNodes\BreakNode.cs" />
+    <Compile Include="Arbol\StatementNodes\CallFuncionStatementNode.cs" />
+    <Compile Include="Arbol\StatementNodes\ContinueNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\DeplazamientoDerechaNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\DeplazamientoIzquierdaNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\DivisionNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\IgualdadNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\IsNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\LogicosONode.cs" />
+    <Compile Include="Arbol\BinaryNodes\LogicosYNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\MultiplicacionNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\NoEsNullNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\OExclusivoPorBitNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\OPorBitNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\PuntoExpresion.cs" />
+    <Compile Include="Arbol\BinaryNodes\RelacionalIgualNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\RelacionalMayorNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\RelacionalMayorOIgualNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\RelacionalMenorNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\RelacionalMenorOIgualNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\RelacionalNoIgualNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\ResiduoNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\RestaNode.cs" />
+    <Compile Include="Arbol\StatementNodes\ReturnNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\SeparadorNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\SumaNode.cs" />
+    <Compile Include="Arbol\BinaryNodes\YPorBitNode.cs" />
+    <Compile Include="Arbol\CallFuntionNode.cs" />
+    <Compile Include="Arbol\ExpressionTernario.cs" />
+    <Compile Include="Arbol\Identificadores\IdentificadoresExpressionNode.cs" />
+    <Compile Include="Arbol\Literales\LiteralBinaria.cs" />
+    <Compile Include="Arbol\Literales\LiteralBooleana.cs" />
+    <Compile Include="Arbol\Literales\LiteralChar.cs" />
+    <Compile Include="Arbol\Literales\LiteralesFloat.cs" />
+    <Compile Include="Arbol\Literales\LiteralesStrings.cs" />
+    <Compile Include="Arbol\Literales\LiteralNumerico.cs" />
+    <Compile Include="Arbol\NewExpressionNode.cs" />
+    <Compile Include="Arbol\StatementNodes\CasosNode.cs" />
+    <Compile Include="Arbol\StatementNodes\ClassNode.cs" />
+    <Compile Include="Arbol\StatementNodes\ConstructorNode.cs" />
+    <Compile Include="Arbol\StatementNodes\DeclaracionMetodo.cs" />
+    <Compile Include="Arbol\StatementNodes\DeclaracionVariableNode.cs" />
+    <Compile Include="Arbol\StatementNodes\DefaulNode.cs" />
+    <Compile Include="Arbol\StatementNodes\DefinicionTipoNode.cs" />
+    <Compile Include="Arbol\StatementNodes\doNode.cs" />
+    <Compile Include="Arbol\StatementNodes\ElseNode.cs" />
+    <Compile Include="Arbol\StatementNodes\EnumListNode.cs" />
+    <Compile Include="Arbol\StatementNodes\EnumNode.cs" />
+    <Compile Include="Arbol\StatementNodes\ForeachNode.cs" />
+    <Compile Include="Arbol\StatementNodes\ForNode.cs" />
+    <Compile Include="Arbol\StatementNodes\IfNode.cs" />
+    <Compile Include="Arbol\StatementNodes\InterfaceNode.cs" />
+    <Compile Include="Arbol\StatementNodes\InterzaceHeaderNode.cs" />
+    <Compile Include="Arbol\StatementNodes\NameSpaceNode.cs" />
+    <Compile Include="Arbol\StatementNodes\ParametrosNode.cs" />
+    <Compile Include="Arbol\StatementNodes\StatementExpresion.cs" />
+    <Compile Include="Arbol\StatementNodes\SwitchNode.cs" />
+    <Compile Include="Arbol\StatementNodes\UnaryStatemetNode.cs" />
+    <Compile Include="Arbol\StatementNodes\UsingNode.cs" />
+    <Compile Include="Arbol\StatementNodes\WhileNode.cs" />
+    <Compile Include="Arbol\ThisNode.cs" />
+    <Compile Include="Arbol\CastNode.cs" />
+    <Compile Include="Arbol\UnaryNode\UnarioOperadorResta.cs" />
+    <Compile Include="Arbol\UnaryNode\UnaryAutoOperacionDecrementoNode.cs" />
+    <Compile Include="Arbol\UnaryNode\UnaryAutoOperacionIncrementoNode.cs" />
+    <Compile Include="Arbol\UnaryNode\UnaryNegacionNode.cs" />
+    <Compile Include="Arbol\UnaryNode\UnaryNegacionPorBitNode.cs" />
+    <Compile Include="Arbol\UnaryNode\UnaryOperadorSuma.cs" />
+    <Compile Include="Semantico\ContenidoStack.cs" />
+    <Compile Include="Lexico\Lexico.cs" />
+    <Compile Include="Lexico\LexicoException.cs" />
+    <Compile Include="Parser\Expression.cs" />
+    <Compile Include="Parser\Parser.cs" />
+    <Compile Include="Parser\ParserException.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Lexico\Token.cs" />
+    <Compile Include="Lexico\TokenTipos.cs" />
+    <Compile Include="Semantico\SemanticoException.cs" />
+    <Compile Include="Semantico\TablaDeNamespace.cs" />
+    <Compile Include="Semantico\TiposBases.cs" />
+    <Compile Include="Semantico\Tipos\ArrayTipo.cs" />
+    <Compile Include="Semantico\Tipos\BinarioTipo.cs" />
+    <Compile Include="Semantico\Tipos\BooleanTipo.cs" />
+    <Compile Include="Semantico\Tipos\CharTipo.cs" />
+    <Compile Include="Semantico\Tipos\ClaseTipo.cs" />
+    <Compile Include="Semantico\Tipos\EnumTipo.cs" />
+    <Compile Include="Semantico\Tipos\FloatTipo.cs" />
+    <Compile Include="Semantico\Tipos\FuncionTipo.cs" />
+    <Compile Include="Semantico\Tipos\IntTipo.cs" />
+    <Compile Include="Semantico\Tipos\StringTipo.cs" />
+    <Compile Include="Semantico\Tipos\TablaSimbolos.cs" />
+    <Compile Include="Semantico\Tipos\VarTipo.cs" />
+    <Compile Include="Semantico\Tipos\VoidTipo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
