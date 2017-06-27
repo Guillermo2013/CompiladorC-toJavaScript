@@ -18,6 +18,12 @@ namespace Compiladores.Arbol.StatementNodes
                 statement.ValidateSemantic();
             return expresionTipo;
         }
-
+        public override string GenerarCodigo()
+        {
+            var value = "case " + expresion.GenerarCodigo() + " : ";
+            foreach (var lista in cuerpo)
+                value += "\n" + lista.GenerarCodigo();
+            return value;
+        }
     }
 }

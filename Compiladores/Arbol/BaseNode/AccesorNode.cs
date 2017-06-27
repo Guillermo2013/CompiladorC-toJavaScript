@@ -12,5 +12,9 @@ namespace Compiladores.Arbol.BaseNode
         {
             return null;
         }
+        public override string GenerarCodigo()
+        {
+            return "";
+        }
     }
 }

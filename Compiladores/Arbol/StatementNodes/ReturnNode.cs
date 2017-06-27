@@ -15,5 +15,9 @@ namespace Compiladores.Arbol.StatementNodes
         {
             
         }
+        public override string GenerarCodigo()
+        {
+            return "return " + expresion.GenerarCodigo()+";";
+        }
     }
 }

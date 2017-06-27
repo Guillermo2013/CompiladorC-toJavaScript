@@ -28,7 +28,11 @@ namespace Compiladores.Arbol.BinaryNodes
                 return new IntTipo();
             if ((expresion1 is BinarioTipo || expresion2 is IntTipo) && (expresion2 is BinarioTipo || expresion1 is IntTipo))
                 return new BinarioTipo();
-            throw new SemanticoException(" no se puede  " + expresion1 + " con " + expresion2 + "fila " + token.Fila + " columna " + token.Columna);
+            throw new SemanticoException(archivo+" no se puede  " + expresion1 + " con " + expresion2 + "fila " + token.Fila + " columna " + token.Columna);
+        }
+        public override string GenerarCodigo()
+        {
+            return OperadorIzquierdo.GenerarCodigo() + " " + operador + " " + OperadorDerecho.GenerarCodigo();
         }
     }
 }

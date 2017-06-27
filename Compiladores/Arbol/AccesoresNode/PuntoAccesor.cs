@@ -20,7 +20,8 @@ namespace Compiladores.Arbol.AccesoresNode
             if (identificador is CallFuntionNode)
             {
                 (identificador as CallFuntionNode).claseActual = clase;
-                 tipo = identificador.ValidateSemantic();
+                (identificador as CallFuntionNode).ListaDeAccesores = (identificador as CallFuntionNode).ListaDeAccesores;
+                tipo = (identificador as CallFuntionNode).ValidateSemantic();
             }
             else if (identificador is IdentificadoresExpressionNode)
             {
@@ -71,11 +72,16 @@ namespace Compiladores.Arbol.AccesoresNode
                     }
                 }
                 if (!existe)
-                    throw new SemanticoException("no existe el la variable o no es publica " + (identificador as IdentificadoresExpressionNode).nombre + "fila"
+                    throw new SemanticoException(archivo+"no existe el la variable o no es publica " + (identificador as IdentificadoresExpressionNode).nombre + "fila"
                         + identificador.token.Fila + "columna" + identificador.token.Columna);
             }
             return tipo;
         }
+        public override string GenerarCodigo()
+        {
+            return "."+identificador.GenerarCodigo();
+        }
+
     }
    
 }

@@ -27,38 +27,73 @@ namespace Compiladores.Arbol.StatementNodes
             var cuerpoArray = validadFuncionRepetida();
             validarElementosInterface(listaHerencia, cuerpoArray);
             validarFuncionAbstracta(listaValidarAbstract, cuerpoArray);
-                ContenidoStack.InstanceStack.Stack.Push(new TablaSimbolos());
+               
                 foreach (var statement in cuerpo)
                 {
                     if (statement is ConstructorNode)
                     {
                         if (nombre != (statement as ConstructorNode).identificador)
-                            throw new SemanticoException("el constructo debe llamarse igual a la clase" + (statement as ConstructorNode).identificador
+                            throw new SemanticoException(archivo+"el constructo debe llamarse igual a la clase" + (statement as ConstructorNode).identificador
                                 + "fila " + (statement as ConstructorNode).token.Fila + "columna" + (statement as ConstructorNode).token.Columna);
                         if (herencia.Count == 0 && (statement as ConstructorNode).baseParametos.Count != 0)
-                            throw new SemanticoException("el constructo no tiene una base" + (statement as ConstructorNode).identificador
+                            throw new SemanticoException(archivo+"el constructo no tiene una base" + (statement as ConstructorNode).identificador
                                 + "fila " + (statement as ConstructorNode).token.Fila + "columna" + (statement as ConstructorNode).token.Columna);
                     }
+
                     statement.ValidateSemantic();
+                    if (statement is DeclaracionVariableNode)
+                        ContenidoStack._StackInstance.Stack.Pop();
                     if (statement is DeclaracionMetodo)
                     {
                         if ((statement as DeclaracionMetodo).modificar == "abstract" && modificador != "abstract")
                         {
-                            throw new SemanticoException("la funcion tiene que estar en clase abstract" + (statement as DeclaracionMetodo).nombre
+                            throw new SemanticoException(archivo+"la funcion tiene que estar en clase abstract" + (statement as DeclaracionMetodo).nombre
                                 + "fila " + (statement as DeclaracionMetodo).token.Fila + "columna" + (statement as DeclaracionMetodo).token.Columna);
                         }
                         else if ((statement as DeclaracionMetodo).modificar == "abstract" && modificador == "abstract")
                         {
                             if((statement as DeclaracionMetodo).cuerpo != null)
-                                throw new SemanticoException("la funcion abstacta no tiene definicion" + (statement as DeclaracionMetodo).nombre
+                                throw new SemanticoException(archivo+"la funcion abstacta no tiene definicion" + (statement as DeclaracionMetodo).nombre
                                 + "fila " + (statement as DeclaracionMetodo).token.Fila + "columna" + (statement as DeclaracionMetodo).token.Columna);
                         }
                     }
                 }
-                ContenidoStack.InstanceStack.Stack.Pop();
+          
 
                 
                
+        }
+        public override string GenerarCodigo()
+        {
+            string value = "class " + nombre;
+            if (herencia != null && herencia.Count != 0)
+            {
+                value += " extends ";
+                foreach (var lista in herencia)
+                {
+                   if(ValidateHerenciaClases((lista as IdentificadoresExpressionNode).nombre).Count == 0)
+                    value += lista.GenerarCodigo();
+                }
+            }
+            value += "\n{";
+            if (cuerpo != null)
+            {
+                foreach (var lista in cuerpo)
+                {
+                    
+
+                        if (lista is DeclaracionMetodo|| lista is ConstructorNode)
+                        {
+                            if(modificador == "static")
+                                value += "\nstatic " + lista.GenerarCodigo();
+                            value += "\t \n" + lista.GenerarCodigo();
+                        }
+                        
+                }
+
+            }
+            value += "\n}";
+            return value;
         }
 
         private void validarFuncionAbstracta(StatementNode[] listaValidarAbstract, StatementNode[] cuerpoArray)
@@ -107,7 +142,7 @@ namespace Compiladores.Arbol.StatementNodes
 
                         }
                         if (encontrado == false)
-                            throw new SemanticoException(listaValidarAbstract[i] + "debe de implementar todo lo elementos de la clase abstracta fila" + token.Fila + "columna" + token.Columna);
+                            throw new SemanticoException(archivo+listaValidarAbstract[i] + "debe de implementar todo lo elementos de la clase abstracta fila" + token.Fila + "columna" + token.Columna);
                     }
 
                 }
@@ -121,7 +156,7 @@ namespace Compiladores.Arbol.StatementNodes
              
                 var herenciaNombre = (nombreHerencia as IdentificadoresExpressionNode).nombre;
                 if (herenciaNombre == nombre)
-                    throw new SemanticoException("no se puede heredar la misma clase  " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
+                    throw new SemanticoException(archivo+"no se puede heredar la misma clase  " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
                 foreach (var namespaceLista in ContenidoStack._StackInstance.usingNombres)
                     if (TablaDeNamespace.Instance.Tabla.ContainsKey(namespaceLista))
                     {
@@ -133,7 +168,7 @@ namespace Compiladores.Arbol.StatementNodes
                                 {
 
                                     if ((listaclase as ClassNode).encasulamiento != "public" && (listaclase as ClassNode).encasulamiento != "")
-                                        throw new SemanticoException("la clase abstract no es publica " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
+                                        throw new SemanticoException(archivo+"la clase abstract no es publica " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
 
                                     list.AddRange(ObtenerClasePadre(listaclase as ClassNode));
 
@@ -172,7 +207,7 @@ namespace Compiladores.Arbol.StatementNodes
                                     }
 
                                     if (!diferente)
-                                        throw new SemanticoException("no se puede redefenir la funcion llamado " + metodobuscar.nombre + "fila" + metodobuscar.token.Fila + "columna" + metodobuscar.token.Columna);
+                                        throw new SemanticoException(archivo+"no se puede redefenir la funcion llamado " + metodobuscar.nombre + "fila" + metodobuscar.token.Fila + "columna" + metodobuscar.token.Columna);
                                 }
                             }
                         }
@@ -194,7 +229,7 @@ namespace Compiladores.Arbol.StatementNodes
                             listaHerencia[i].tipo.ValidateSemantic().GetType() == (cuerpoArray[j] as DeclaracionMetodo).tipo.ValidateSemantic().GetType() &&
                             listaHerencia[i].parametro.Count == (cuerpoArray[j] as DeclaracionMetodo).parametros.Count)
                         {
-
+                            encontrado = true;
                             var abuscarParametro = listaHerencia[i].parametro.ToArray();
                             var metroParametro = (cuerpoArray[j] as DeclaracionMetodo).parametros.ToArray();
                             for (int z = 0; z < abuscarParametro.Length; z++)
@@ -216,7 +251,7 @@ namespace Compiladores.Arbol.StatementNodes
 
                 }
                 if (encontrado == false)
-                    throw new SemanticoException("debe de implementar todo lo elementos de la interfaz fila" + token.Fila + "columna" + token.Columna);
+                    throw new SemanticoException(archivo+"debe de implementar todo lo elementos de la interfaz fila" + token.Fila + "columna" + token.Columna);
             }
         }
         
@@ -231,7 +266,7 @@ namespace Compiladores.Arbol.StatementNodes
                 {
                     var nombre = (Abuscar as IdentificadoresExpressionNode).nombre;
                     if (nombre == (herenciaArray[j] as IdentificadoresExpressionNode).nombre)
-                        throw new SemanticoException("no repetiste clase o interzace" + nombre + "fila " + herenciaArray[j].token.Fila + "columna" + herenciaArray[j].token.Columna);
+                        throw new SemanticoException(archivo+"no repetiste clase o interzace" + nombre + "fila " + herenciaArray[j].token.Fila + "columna" + herenciaArray[j].token.Columna);
                 }
                 i++;
             }
@@ -245,7 +280,8 @@ namespace Compiladores.Arbol.StatementNodes
                 bool encontrado = false;
                 var herenciaNombre = (nombreHerencia as IdentificadoresExpressionNode).nombre;
                 if (herenciaNombre == nombre)
-                    throw new SemanticoException("no se puede heredar la misma clase  " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
+                    throw new SemanticoException(archivo+"no se puede heredar la misma clase  " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
+                var clase = false;
                 foreach (var namespaceLista in ContenidoStack._StackInstance.usingNombres)
                     if (TablaDeNamespace.Instance.Tabla.ContainsKey(namespaceLista))
                     {
@@ -256,27 +292,32 @@ namespace Compiladores.Arbol.StatementNodes
                                 {
                                     encontrado = true;
                                     if ((listaclase as InterfaceNode).encasulamiento != "public" && (listaclase as InterfaceNode).encasulamiento != "")
-                                        throw new SemanticoException("la inferzace no es publica " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
+                                        throw new SemanticoException(archivo+"la inferzace no es publica " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
                                     
                                      list = ObtenerInterfacePadre((listaclase as InterfaceNode));
 
                                 }
                              }
-                             else if (listaclase is ClassNode)
+                             else if (listaclase is ClassNode && lista.First() is ClassNode  )
                              {
                                  if (herenciaNombre == (listaclase as ClassNode).nombre)
                                 {
+                                    clase = true;
                                     encontrado = true;
                                     if ((listaclase as ClassNode).encasulamiento != "public" && (listaclase as ClassNode).encasulamiento != "")
-                                        throw new SemanticoException("la clase no es publica " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
+                                        throw new SemanticoException(archivo+"la clase no es publica " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
                                   
                                 }
 
                              }
+                            else if (clase == true && !(listaclase is InterfaceNode))
+                            {
+                                throw new SemanticoException(archivo + "la clase tiene que ser clase " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
+                            }
                     }
                 
                     if (encontrado == false)
-                        throw new SemanticoException("no se encuentra la interface ,clase o enum  " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
+                        throw new SemanticoException(archivo+"no se encuentra la interface ,clase o enum  " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
                 }
             return list;
          
@@ -333,6 +374,52 @@ namespace Compiladores.Arbol.StatementNodes
                 }
             }
             return lista;
+        }
+
+        private List<InterzaceHeaderNode> ValidateHerenciaClases(string clase)
+        {
+            List<InterzaceHeaderNode> list = new List<InterzaceHeaderNode>(); ;
+            foreach (var nombreHerencia in herencia)
+            {
+                bool encontrado = false;
+                var herenciaNombre = clase;
+                if (herenciaNombre == nombre)
+                    throw new SemanticoException(archivo + "no se puede heredar la misma clase  " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
+                foreach (var namespaceLista in ContenidoStack._StackInstance.usingNombres)
+                    if (TablaDeNamespace.Instance.Tabla.ContainsKey(namespaceLista))
+                    {
+                        var lista = TablaDeNamespace.Instance.Tabla[namespaceLista];
+                        foreach (var listaclase in lista)
+                            if (listaclase is InterfaceNode)
+                            {
+                                if (herenciaNombre == (listaclase as InterfaceNode).nombre)
+                                {
+                                    encontrado = true;
+                                    if ((listaclase as InterfaceNode).encasulamiento != "public" && (listaclase as InterfaceNode).encasulamiento != "")
+                                        throw new SemanticoException(archivo + "la inferzace no es publica " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
+
+                                    list = ObtenerInterfacePadre((listaclase as InterfaceNode));
+
+                                }
+                            }
+                            else if (listaclase is ClassNode)
+                            {
+                                if (herenciaNombre == (listaclase as ClassNode).nombre)
+                                {
+                                    encontrado = true;
+                                    if ((listaclase as ClassNode).encasulamiento != "public" && (listaclase as ClassNode).encasulamiento != "")
+                                        throw new SemanticoException(archivo + "la clase no es publica " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
+
+                                }
+
+                            }
+                    }
+
+                if (encontrado == false)
+                    throw new SemanticoException(archivo + "no se encuentra la interface ,clase o enum  " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
+            }
+            return list;
+
         }
     }
     }

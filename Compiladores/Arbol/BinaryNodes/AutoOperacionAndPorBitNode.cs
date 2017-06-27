@@ -26,14 +26,17 @@ namespace Compiladores.Arbol.BinaryNodes
             if (OperadorIzquierdo == null)
                 return expresion1;
             if (!(OperadorIzquierdo is IdentificadoresExpressionNode))
-                throw new SemanticoException("no se puede asignar literales  fila " + token.Fila + " columna " + token.Columna);
+                throw new SemanticoException(archivo+"no se puede asignar literales  fila " + token.Fila + " columna " + token.Columna);
             var expresion2 = OperadorIzquierdo.ValidateSemantic();
             if (expresion1 is BooleanTipo && expresion2 is BooleanTipo)
                 return expresion1;
             if (expresion2 is IntTipo && expresion1 is IntTipo)
                 return new IntTipo();
-            throw new SemanticoException("no se puede auto operacion o logico no se puede  " + expresion1 + " con " + expresion2 + "fila " + token.Fila + " columna " + token.Columna);
+            throw new SemanticoException(archivo+"no se puede auto operacion o logico no se puede  " + expresion1 + " con " + expresion2 + "fila " + token.Fila + " columna " + token.Columna);
         }
-
+        public override string GenerarCodigo()
+        {
+            return OperadorIzquierdo.GenerarCodigo() + " " + operador + " " + OperadorDerecho.GenerarCodigo();
+        }
     }
 }

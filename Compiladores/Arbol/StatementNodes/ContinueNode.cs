@@ -12,7 +12,11 @@ namespace Compiladores.Arbol.StatementNodes
     {
         public override void ValidateSemantic()
         {
-            throw new NotImplementedException();
+           
+        }
+        public override string GenerarCodigo()
+        {
+            return "continue";
         }
     }
 }

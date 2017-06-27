@@ -23,5 +23,15 @@ namespace Compiladores.Arbol.StatementNodes
                 ContenidoStack.InstanceStack.Stack.Pop();
             }
         }
+        public override string GenerarCodigo()
+        {
+            string value = "else\n{";
+            foreach (var tipo in cuerpo)
+            {
+                value += "\n"+tipo.GenerarCodigo();
+            }
+            value += "\n}";
+            return value;
+        }
     }
 }

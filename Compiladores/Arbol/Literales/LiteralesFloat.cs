@@ -14,5 +14,10 @@ namespace Compiladores.Arbol.Literales
         {
             return new FloatTipo();
         }
+        public override string GenerarCodigo()
+        {
+            return valor.ToString().Replace("f","");
+        }
+       
     }
 }

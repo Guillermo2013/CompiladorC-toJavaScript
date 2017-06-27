@@ -18,9 +18,13 @@ namespace Compiladores.Arbol.StatementNodes
                 ContenidoStack.InstanceStack.DeclareUsing(identificador);
             else {
                 if (ContenidoStack.InstanceStack.VariableUsing(identificador))
-                        throw new SemanticoException("se se agrego es namespace"+identificador +" fila"+ token.Fila + " columna " + token.Columna);
+                        throw new SemanticoException(archivo+"se se agrego es namespace"+identificador +" fila"+ token.Fila + " columna " + token.Columna);
                 ContenidoStack.InstanceStack.DeclareUsing(identificador);
             }
+        }
+        public override string GenerarCodigo()
+        {
+            return "";
         }
     }
 }

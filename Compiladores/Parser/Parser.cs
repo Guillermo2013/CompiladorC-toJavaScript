@@ -11,6 +11,7 @@ using Compiladores.Arbol.UnaryNode;
 using Compiladores.Arbol.Literales;
 using Compiladores.Semantico;
 using Compiladores.Semantico.Tipos;
+using Compiladores.Arbol.BinaryNodes;
 namespace Compiladores
 {
     
@@ -33,6 +34,7 @@ namespace Compiladores
         public List<TokenTipos> Encapsulation = new List<TokenTipos>();
         public List<TokenTipos> OptionalModifier = new List<TokenTipos>();      
         public readonly Expression Expression;
+        public string archivo;
        
         public Parser(Lexico lexico)
         {
@@ -80,6 +82,7 @@ namespace Compiladores
             Literal.Add(TokenTipos.NumeroOctal);
             Literal.Add(TokenTipos.NumeroFloat);
             Literal.Add(TokenTipos.Numero);
+            Literal.Add(TokenTipos.LiteralChar);
             Literal.Add(TokenTipos.LiteralString);
             Literal.Add(TokenTipos.PalabraReservadaTrue);
             Literal.Add(TokenTipos.PalabraReservadaFalse);
@@ -108,7 +111,7 @@ namespace Compiladores
             }
             else
             {
-                throw new ParserException("se esperaba un tipo de dato" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                throw new ParserException(archivo+"se esperaba un tipo de dato" + CurrentToken.Columna + " " + CurrentToken.Fila);
             }
         }
         private DefinicionTipoNode type()
@@ -118,14 +121,14 @@ namespace Compiladores
                 var token = CurrentToken;
               var tipo =  builtInType();
                 var array = Expression.optionalRankSpecifierList();
-                return new DefinicionTipoNode() { tipounico = tipo.Lexema, array = array , token = token};
+                return new DefinicionTipoNode() { archivo = archivo, tipounico = tipo.Lexema, array = array, token = token };
             }
             else if (CurrentToken.Tipo == TokenTipos.Identificador)
             {
                 var token = CurrentToken;
                 var identificar = qualifiedIdentifier();
                 var array = Expression.optionalRankSpecifierList();
-                return new DefinicionTipoNode() { tipounico = identificar, array = array, token = token };
+                return new DefinicionTipoNode() { archivo = archivo, tipounico = identificar, array = array, token = token };
             }
             return null;
         }
@@ -219,7 +222,7 @@ namespace Compiladores
                return groupDeclaration(encapsulamiento);
             }else
 
-                throw new ParserException("se espera una interface , enum o clase" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                throw new ParserException(archivo+"se espera una interface , enum o clase" + CurrentToken.Columna + " " + CurrentToken.Fila);
             
 
         }
@@ -232,13 +235,13 @@ namespace Compiladores
                 getNextToken();
                 var identificador = CurrentToken.Lexema;
                 if(CurrentToken.Tipo != TokenTipos.Identificador){
-                    throw new ParserException("se esperaba un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 var identificadorlist = identifierAttribute();
                 var lista =  namespaceBody();
                 TablaDeNamespace.Instance.DeclareNameSpace(string.Concat(identificador, identificadorlist), lista);
-                return new NameSpaceNode() { nombre = string.Concat(identificador,identificadorlist), statemenList = lista, token = token };
+                return new NameSpaceNode() { archivo = archivo, nombre = string.Concat(identificador, identificadorlist), statemenList = lista, token = token };
 
             }
             return null;
@@ -254,12 +257,12 @@ namespace Compiladores
                 namespaceList.InsertRange(0, usingList);
                 if (CurrentToken.Tipo != TokenTipos.LlaveDerecho)
                 {
-                    throw new ParserException("se esperaba una llaver" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba una llaver" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 return namespaceList;
             }else
-                throw new ParserException("se esperaba un parentesis " + CurrentToken.Columna + " " + CurrentToken.Fila);
+                throw new ParserException(archivo+"se esperaba un parentesis " + CurrentToken.Columna + " " + CurrentToken.Fila);
         }
 
         public string identifierAttribute()
@@ -271,7 +274,7 @@ namespace Compiladores
                 var identificador = CurrentToken.Lexema;
                 if (CurrentToken.Tipo != TokenTipos.Identificador)
                 {
-                    throw new ParserException("se espera un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se espera un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 var listaIdentificador = identifierAttribute();
@@ -302,7 +305,7 @@ namespace Compiladores
                 getNextToken();
                  if (CurrentToken.Tipo != TokenTipos.Identificador)
                 {
-                    throw new ParserException("Se espera un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"Se espera un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                  var identificador =  CurrentToken.Lexema;
                  getNextToken();
@@ -310,10 +313,10 @@ namespace Compiladores
                
                 if (CurrentToken.Tipo != TokenTipos.FinalDeSentencia)
                 {
-                    throw new ParserException("Se espera un ;" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"Se espera un ;" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
-                var usingList = new UsingNode() { identificador = string.Concat(identificador,listaDeidentificador), token = token };
+                var usingList = new UsingNode() { archivo = archivo , identificador = string.Concat(identificador, listaDeidentificador), token = token };
                var listaUsing = optionalUsingDirective();
                listaUsing.Insert(0, usingList);
                return listaUsing;
@@ -332,7 +335,7 @@ namespace Compiladores
             else if (CurrentToken.Tipo == TokenTipos.PalabraReservadaEnum)
              return  enumDeclaration(encapsulamiento);
             else
-                throw new ParserException("se espera un class , enum o interfaz" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                throw new ParserException(archivo+"se espera un class , enum o interfaz" + CurrentToken.Columna + " " + CurrentToken.Fila);
         }
 
         private Token encapsulationModifier()
@@ -356,12 +359,12 @@ namespace Compiladores
                 var identificador = CurrentToken;
                 if (CurrentToken.Tipo != TokenTipos.Identificador)
                 {
-                    throw new ParserException("se espera identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se espera identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 var enumbody = enumBody();
                 optionalBodyEnd();
-                return new EnumNode() { encasulamiento = encapsulamiento != null ? encapsulamiento.Lexema : "public",identificador = identificador.Lexema,  lista = enumbody, token = token };
+                return new EnumNode() { archivo = archivo, encasulamiento = encapsulamiento != null ? encapsulamiento.Lexema : "public", identificador = identificador.Lexema, lista = enumbody, token = token };
             }
             return null;
         }
@@ -374,13 +377,13 @@ namespace Compiladores
                 var enumBodyList = optionalAssignableIdentifiersList();
                 if (CurrentToken.Tipo != TokenTipos.LlaveDerecho)
                 {
-                    throw new ParserException("se esperaba una llave" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba una llave" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 return enumBodyList;
             }
             else
-                throw new ParserException("se esperaba un llave" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                throw new ParserException(archivo+"se esperaba un llave" + CurrentToken.Columna + " " + CurrentToken.Fila);
         }
 
         private List<EnumListNode> optionalAssignableIdentifiersList()
@@ -402,14 +405,14 @@ namespace Compiladores
                 
                 getNextToken();
                 var expresion = Expression.Expressions();
-                var enumId = new EnumListNode() { identificador = identificador.Lexema , asignacion = expresion, token = identificador};
+                var enumId = new EnumListNode() { archivo = archivo,  identificador = identificador.Lexema, asignacion = expresion, token = identificador };
                var lista = optionalAssignableIdentifiersListP();
                lista.Insert(0, enumId);
                return lista;
             }
             else 
             {
-                var enumId = new EnumListNode() { identificador = identificador.Lexema, token = identificador };
+                var enumId = new EnumListNode() { archivo = archivo, identificador = identificador.Lexema, token = identificador };
                 var listar = optionalAssignableIdentifiersListP();
                 listar.Insert(0, enumId);
                 return listar;
@@ -426,7 +429,7 @@ namespace Compiladores
                 if (CurrentToken.Tipo == TokenTipos.Identificador)
                     return optionalAssignableIdentifiersList();
                 else
-                    throw new ParserException("se esperaba un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
             }
             else {
                 return new List<EnumListNode>();
@@ -441,13 +444,13 @@ namespace Compiladores
                 var identificador = CurrentToken;
                 if (CurrentToken.Tipo != TokenTipos.Identificador)
                 {
-                    throw new ParserException("se esperaba un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                var herencia = inheritanceBase();
                 var interfaz = interfaceBody();
                 optionalBodyEnd();
-                return new InterfaceNode() { encasulamiento = encapsulamiento != null ? encapsulamiento.Lexema : "", nombre = identificador.Lexema, herencia = herencia, cuerpo = interfaz, token = token };
+                return new InterfaceNode() { archivo = archivo, encasulamiento = encapsulamiento != null ? encapsulamiento.Lexema : "", nombre = identificador.Lexema, herencia = herencia, cuerpo = interfaz, token = token };
             }
             return null;
         }
@@ -460,12 +463,12 @@ namespace Compiladores
                var metodos = interfaceMethodDeclarationList();
                 if (CurrentToken.Tipo != TokenTipos.LlaveDerecho)
                 {
-                    throw new ParserException("se esperaba una llave " + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba una llave " + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 return metodos;
             }else
-                throw new ParserException("se esperaba una llave" + CurrentToken.Columna + " " + CurrentToken.Fila);  
+                throw new ParserException(archivo+"se esperaba una llave" + CurrentToken.Columna + " " + CurrentToken.Fila);  
         }
 
         private List<InterzaceHeaderNode> interfaceMethodDeclarationList()
@@ -475,7 +478,7 @@ namespace Compiladores
                var metodo = interfaceMethodHeader();
                 if (CurrentToken.Tipo != TokenTipos.FinalDeSentencia)
                 {
-                    throw new ParserException("se esperaba un : ;" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un : ;" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                var lista = interfaceMethodDeclarationList();
@@ -493,21 +496,21 @@ namespace Compiladores
            var nombre = CurrentToken;
             if (CurrentToken.Tipo != TokenTipos.Identificador)
             {
-                throw new ParserException("se esperaba un : identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                throw new ParserException(archivo+"se esperaba un : identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
             }
             getNextToken();
             if (CurrentToken.Tipo != TokenTipos.ParentesisIzquierdo)
             {
-                throw new ParserException("se esperaba un : ( " + CurrentToken.Columna + " " + CurrentToken.Fila);
+                throw new ParserException(archivo+"se esperaba un : ( " + CurrentToken.Columna + " " + CurrentToken.Fila);
             }
             getNextToken();
             var parametros = fixedParameters();
             if (CurrentToken.Tipo != TokenTipos.ParentesisDerecho)
             {
-                throw new ParserException("se esperaba un : ( " + CurrentToken.Columna + " " + CurrentToken.Fila);
+                throw new ParserException(archivo+"se esperaba un : ( " + CurrentToken.Columna + " " + CurrentToken.Fila);
             }
             getNextToken();
-            return new InterzaceHeaderNode() { tipo = tipo, nombre = nombre.Lexema, parametro = parametros, token = token };
+            return new InterzaceHeaderNode() { archivo = archivo, tipo = tipo, nombre = nombre.Lexema, parametro = parametros, token = token };
         }
 
         private List<ParametrosNode> fixedParameters()
@@ -548,11 +551,11 @@ namespace Compiladores
                 var tipo = type();
                 var nombre = CurrentToken;   
                 if (CurrentToken.Tipo != TokenTipos.Identificador)
-                    throw new ParserException("se esperaba un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 getNextToken();
-                return new ParametrosNode() { tipo = tipo, nombre = nombre.Lexema, token = token };
+                return new ParametrosNode() { archivo = archivo, tipo = tipo, nombre = nombre.Lexema, token = token };
             }else
-                throw new ParserException("se esperaba un tipo de dato " + CurrentToken.Columna + " " + CurrentToken.Fila);
+                throw new ParserException(archivo+"se esperaba un tipo de dato " + CurrentToken.Columna + " " + CurrentToken.Fila);
             
         }
 
@@ -567,9 +570,9 @@ namespace Compiladores
             {
                 var tipo = CurrentToken;
                 getNextToken();
-                return new DefinicionTipoNode() { tipounico = tipo.Lexema, token = tipo};
+                return new DefinicionTipoNode() { archivo = archivo, tipounico = tipo.Lexema, token = tipo };
             }else
-                throw new ParserException("se espera un tipo de dato o la palabra void" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                throw new ParserException(archivo+"se espera un tipo de dato o la palabra void" + CurrentToken.Columna + " " + CurrentToken.Fila);
         }
 
 
@@ -579,19 +582,19 @@ namespace Compiladores
              var modifier = classModifier();
             if (CurrentToken.Tipo != TokenTipos.PalabraReservadaClase)
             {
-                throw new ParserException("se espraba la palabra clase" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                throw new ParserException(archivo+"se espraba la palabra clase" + CurrentToken.Columna + " " + CurrentToken.Fila);
             }
             getNextToken();
             var identificador = CurrentToken;
             if (CurrentToken.Tipo != TokenTipos.Identificador)
             {
-                throw new ParserException("se espraba un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                throw new ParserException(archivo+"se espraba un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
             }
             getNextToken();
             var herencia = inheritanceBase();
             var cuerpo = classBody();
             optionalBodyEnd();
-            return new ClassNode() { encasulamiento = encapsulamiento != null ? encapsulamiento.Lexema : null, modificador = modifier != null ? modifier.Lexema : null, nombre = identificador.Lexema, herencia = herencia, cuerpo = cuerpo, token = token };
+            return new ClassNode() { archivo = archivo, encasulamiento = encapsulamiento != null ? encapsulamiento.Lexema : null, modificador = modifier != null ? modifier.Lexema : null, nombre = identificador.Lexema, herencia = herencia, cuerpo = cuerpo, token = token };
             
         }
 
@@ -612,12 +615,12 @@ namespace Compiladores
                var lista =  optionalClassMemberDeclarationList();
                 if (CurrentToken.Tipo != TokenTipos.LlaveDerecho)
                 {
-                    throw new ParserException("se esperaba una llave " + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba una llave " + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 return lista;
             }else
-                throw new ParserException("se esperaba una llave" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                throw new ParserException(archivo+"se esperaba una llave" + CurrentToken.Columna + " " + CurrentToken.Fila);
         }
         private List<ExpressionNode> inheritanceBase()
         {
@@ -638,13 +641,13 @@ namespace Compiladores
             {
                 var token = CurrentToken;
                 getNextToken();
-                var identificador = new IdentificadoresExpressionNode() { nombre = token.Lexema, token = token};
+                var identificador = new IdentificadoresExpressionNode() { archivo = archivo, nombre = token.Lexema, token = token };
                var lista = identifiersListP();
                lista.Insert(0, identificador);
                return lista;
             }
             else
-                throw new ParserException("se espera una claseo o interface herencia" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                throw new ParserException(archivo+"se espera una claseo o interface herencia" + CurrentToken.Columna + " " + CurrentToken.Fila);
         }
 
         private List<ExpressionNode> identifiersListP()
@@ -654,10 +657,10 @@ namespace Compiladores
                 getNextToken();
                 var token = CurrentToken;
                 if (CurrentToken.Tipo != TokenTipos.Identificador) {
-                    throw new ParserException("se esperaba un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
-                var identificador = new IdentificadoresExpressionNode() { nombre = token.Lexema, token = token };
+                var identificador = new IdentificadoresExpressionNode() { archivo = archivo, nombre = token.Lexema, token = token };
                 var lista = identifiersListP();
                 lista.Insert(0, identificador);
                 return lista;
@@ -709,6 +712,13 @@ namespace Compiladores
             {
                 var identificador = CurrentToken;
                 getNextToken();
+                List<List<ExpressionNode>> array = new List<List<ExpressionNode>>();
+                if (CurrentToken.Tipo == TokenTipos.CorcheteIzquierdo)
+                {
+                    array = Expression.optionalRankSpecifierList();
+                  
+                }
+                    
                 if (CurrentToken.Tipo == TokenTipos.ParentesisIzquierdo){
                     var constructor = constructorDeclarator(encapsulamiento, identificador);
                     constructor.constructorCuerpo = maybeEmptyBlock();
@@ -719,20 +729,26 @@ namespace Compiladores
                     var nombre = CurrentToken;
                     getNextToken();
                     var metodoOvariable = fieldOrMethod(nombre);
+                    metodoOvariable.archivo = archivo;
                     if (metodoOvariable is DeclaracionMetodo)
                     {
                         (metodoOvariable as DeclaracionMetodo).encapsulamiento = (encapsulamiento != null) ? encapsulamiento.Lexema : null;
                         (metodoOvariable as DeclaracionMetodo).tipo.tipounico = identificador.Lexema;
+                        if (array.Count != 0)
+                            (metodoOvariable as DeclaracionMetodo).tipo.array.AddRange(array);
+
                     }
                     else
                     {
                         (metodoOvariable as DeclaracionVariableNode).encapsulamiento = (encapsulamiento != null) ? encapsulamiento.Lexema : null; 
                         (metodoOvariable as DeclaracionVariableNode).tipo.tipounico = identificador.Lexema;
+                        if(array.Count !=0)
+                            (metodoOvariable as DeclaracionMetodo).tipo.array.AddRange(array);
                     }
                     metodoOvariable.token = nombre;
                     return metodoOvariable;
                 }else
-                    throw new ParserException("se espera un identificador o un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);    
+                    throw new ParserException(archivo+"se espera un identificador o un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);    
             }
             else 
             {
@@ -742,7 +758,7 @@ namespace Compiladores
                 var identificador = CurrentToken;
                 if (CurrentToken.Tipo != TokenTipos.Identificador)
                 {
-                    throw new ParserException("se esperaba un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 var metodoOvariable = fieldOrMethod(identificador);
@@ -772,7 +788,7 @@ namespace Compiladores
             else if(CurrentToken.Tipo == TokenTipos.FinalDeSentencia || CurrentToken.Tipo == TokenTipos.Asignacion)
                 return fieldDeclaration(identificador);
             else
-                throw new ParserException("se espera un funcion o un inizalisacion" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                throw new ParserException(archivo+"se espera un funcion o un inizalisacion" + CurrentToken.Columna + " " + CurrentToken.Fila);
         }
 
         private DeclaracionMetodo methodDeclaration(Token identificador)
@@ -784,11 +800,11 @@ namespace Compiladores
                 var parametros = fixedParameters();
                  if (CurrentToken.Tipo != TokenTipos.ParentesisDerecho)
                  {
-                     throw new ParserException("se esperaba un parentesis " + CurrentToken.Columna + " " + CurrentToken.Fila);
+                     throw new ParserException(archivo+"se esperaba un parentesis " + CurrentToken.Columna + " " + CurrentToken.Fila);
                  }
                  getNextToken();
                 var cuerpo = maybeEmptyBlock();
-                return new DeclaracionMetodo() { cuerpo = cuerpo, nombre = identificador.Lexema, parametros = parametros, token = token };
+                return new DeclaracionMetodo() { archivo = archivo, cuerpo = cuerpo, nombre = identificador.Lexema, parametros = parametros, token = token };
              }
             return null;
         }
@@ -801,10 +817,10 @@ namespace Compiladores
                 
                 if (CurrentToken.Tipo != TokenTipos.FinalDeSentencia)
                 {
-                    throw new ParserException("se espera un ;" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se espera un ;" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
-                return new DeclaracionVariableNode() { identificador = identificador.Lexema, declarationList = declaracion, inicializacion = asignasion, token = token };
+                return new DeclaracionVariableNode() { archivo = archivo, identificador = identificador.Lexema, declarationList = declaracion, inicializacion = asignasion, token = token };
         }
 
         private List<StatementNode>  variableDeclaratorListP()
@@ -828,13 +844,13 @@ namespace Compiladores
                 getNextToken();
                 var expresion = variableAssigner();
                 var lista = variableDeclaratorListP();
-                
-                var declaracion = new DeclaracionVariableNode(){ identificador =  identificador.Lexema, inicializacion = expresion, token = identificador};
+
+                var declaracion = new DeclaracionVariableNode() { archivo = archivo, identificador = identificador.Lexema, inicializacion = expresion, token = identificador };
                 lista.Insert(0, declaracion);
                 return lista;
               
             }else
-            throw new ParserException("se espera un identificador"+CurrentToken.Columna+" "+CurrentToken.Fila);
+            throw new ParserException(archivo+"se espera un identificador"+CurrentToken.Columna+" "+CurrentToken.Fila);
         }
 
         private ExpressionNode variableAssigner()
@@ -875,7 +891,7 @@ namespace Compiladores
                 var lista =  optionalStatementList();
                 if (CurrentToken.Tipo != TokenTipos.LlaveDerecho)
                 {
-                    throw new ParserException("se espera una llave" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se espera una llave" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 return lista;
@@ -884,7 +900,7 @@ namespace Compiladores
                 getNextToken();
                 return null;
             }else
-                throw new ParserException("se esperaban unos llaves o punto y coma" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                throw new ParserException(archivo+"se esperaban unos llaves o punto y coma" + CurrentToken.Columna + " " + CurrentToken.Fila);
         }
 
 
@@ -894,17 +910,17 @@ namespace Compiladores
             var token = CurrentToken;
                      if (CurrentToken.Tipo != TokenTipos.ParentesisIzquierdo)
                     {
-                        throw new ParserException("se esperaba unos parentesis :(" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                        throw new ParserException(archivo+"se esperaba unos parentesis :(" + CurrentToken.Columna + " " + CurrentToken.Fila);
                     }
                     getNextToken();
                    var parametros = fixedParameters();
                     if (CurrentToken.Tipo != TokenTipos.ParentesisDerecho)
                     {
-                        throw new ParserException("se esperaba unos parentesis :(" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                        throw new ParserException(archivo+"se esperaba unos parentesis :(" + CurrentToken.Columna + " " + CurrentToken.Fila);
                     }
                     getNextToken();
                     var inicializacion = constructorInitializer();
-                    return new ConstructorNode() { parametro = parametros, identificador = identificador.Lexema, encapsulamiento = (encapsulamiento != null)?encapsulamiento.Lexema:""
+                    return new ConstructorNode() { archivo = archivo ,parametro = parametros, identificador = identificador.Lexema, encapsulamiento = (encapsulamiento != null)?encapsulamiento.Lexema:""
                     ,baseParametos = inicializacion , token = token};
         }
 
@@ -915,18 +931,18 @@ namespace Compiladores
                 getNextToken();
                 if (CurrentToken.Tipo != TokenTipos.PalabraReservadaBase)
                 {
-                    throw new ParserException("se esperban la palabra base" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperban la palabra base" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 if (CurrentToken.Tipo != TokenTipos.ParentesisIzquierdo)
                 {
-                    throw new ParserException("se esperban  ( " + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperban  ( " + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                var argumentos = Expression.argumentList();
                 if (CurrentToken.Tipo != TokenTipos.ParentesisDerecho)
                 {
-                    throw new ParserException("se esperban  ) " + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperban  ) " + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 return argumentos;
@@ -964,7 +980,7 @@ namespace Compiladores
                 var statement = localVariableDeclaration();
                 if (CurrentToken.Tipo != TokenTipos.FinalDeSentencia)
                 {
-                    throw new ParserException("se esperaba un ; " + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un ; " + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 var lista = new List<StatementNode>();
@@ -985,7 +1001,7 @@ namespace Compiladores
             var token = CurrentToken;
            var tipo = TypeOrVar();
             var declaration = variableDeclaratorList();
-            return new DeclaracionVariableNode() { tipo = tipo, declarationList = declaration, token = token };
+            return new DeclaracionVariableNode() { archivo = archivo, tipo = tipo, declarationList = declaration, token = token };
         }
 
         private DefinicionTipoNode TypeOrVar()
@@ -996,13 +1012,13 @@ namespace Compiladores
             }
             else if (CurrentToken.Tipo == TokenTipos.PalabraReservadaVoid)
             {
-            
-                var definicion = new DefinicionTipoNode() { tipounico = CurrentToken.Lexema, token = CurrentToken };
+
+                var definicion = new DefinicionTipoNode() { archivo = archivo, tipounico = CurrentToken.Lexema, token = CurrentToken };
                 getNextToken();
                 return definicion;
             }
             else
-                throw new ParserException("se espreba un tipo o la palabra void" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                throw new ParserException(archivo+"se espreba un tipo o la palabra void" + CurrentToken.Columna + " " + CurrentToken.Fila);
 
         }
         private List<StatementNode> embeddedStatement()
@@ -1026,7 +1042,7 @@ namespace Compiladores
               lista.Add(jump);
                 if (CurrentToken.Tipo != TokenTipos.FinalDeSentencia)
                 {
-                    throw new ParserException("se esperaba un ; " + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un ; " + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 return lista;
@@ -1039,7 +1055,7 @@ namespace Compiladores
 
                 if (CurrentToken.Tipo != TokenTipos.FinalDeSentencia)
                 {
-                    throw new ParserException("se esperaba un ; " + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un ; " + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 lista.Add(statemet);
@@ -1055,16 +1071,16 @@ namespace Compiladores
                 var token = CurrentToken;
                 getNextToken();
                 if (CurrentToken.Tipo == TokenTipos.PalabraReservadaContinue)
-                    return new ContinueNode() {  token = token};
+                    return new ContinueNode() { archivo = archivo, token = token };
                 else
-                    return new BreakNode() {  token = token};
+                    return new BreakNode() { archivo = archivo, token = token };
             }
             else if (CurrentToken.Tipo == TokenTipos.PalabraReservadaReturn)
             {
                 var token = CurrentToken;
                 getNextToken();
                var expresion = optionalExpression();
-               return new ReturnNode() { expresion = expresion, token = token };
+               return new ReturnNode() { archivo = archivo, expresion = expresion, token = token };
             }
             return null;
         }
@@ -1112,29 +1128,29 @@ namespace Compiladores
                 getNextToken();
                 if (CurrentToken.Tipo != TokenTipos.ParentesisIzquierdo)
                 {
-                    throw new ParserException("se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 var tipo = type();
                 if (CurrentToken.Tipo != TokenTipos.Identificador)
                 {
-                    throw new ParserException("se esperaba un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un identificador" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 var identificador = CurrentToken.Lexema;
                 getNextToken();
                 if (CurrentToken.Tipo != TokenTipos.PalabraReservadaIn)
                 {
-                    throw new ParserException("se esperaba un la palabra in " + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un la palabra in " + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 var expresion = Expression.Expressions();
                 if (CurrentToken.Tipo != TokenTipos.ParentesisDerecho)
                 {
-                    throw new ParserException("se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 var cuerpo = embeddedStatement();
-                return new ForeachNode(){cuerpo = cuerpo , tipo = tipo,identificador = identificador , expresion = expresion, token = token  };   
+                return new ForeachNode() { archivo = archivo, cuerpo = cuerpo, tipo = tipo, identificador = identificador, expresion = expresion, token = token };   
             }
             return null;
         }
@@ -1148,26 +1164,26 @@ namespace Compiladores
                var cuerpo = embeddedStatement();
                 if (CurrentToken.Tipo != TokenTipos.PalabraReservadaWhile)
                 {
-                    throw new ParserException("se esperaba la palabra while" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba la palabra while" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 if (CurrentToken.Tipo != TokenTipos.ParentesisIzquierdo)
                 {
-                    throw new ParserException("se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 var expresion = Expression.Expressions();
                 if (CurrentToken.Tipo != TokenTipos.ParentesisDerecho)
                 {
-                    throw new ParserException("se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 if (CurrentToken.Tipo != TokenTipos.FinalDeSentencia)
                 {
-                    throw new ParserException("se esperaba un ; " + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un ; " + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
-                return new doNode(){ expresion = expresion ,cuerpo = cuerpo ,token = token};
+                return new doNode() { archivo = archivo, expresion = expresion, cuerpo = cuerpo, token = token };
             }
             else { 
                 return null;
@@ -1182,29 +1198,30 @@ namespace Compiladores
                 getNextToken();
                 if (CurrentToken.Tipo != TokenTipos.ParentesisIzquierdo)
                 {
-                    throw new ParserException("se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 var expresion1 = optionalForInitializer();
                 if (CurrentToken.Tipo != TokenTipos.FinalDeSentencia)
                 {
-                    throw new ParserException("se esperaba un ; " + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un ; " + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 var expresion2 = optionalExpression();
+               
                 if (CurrentToken.Tipo != TokenTipos.FinalDeSentencia)
                 {
-                    throw new ParserException("se esperaba un ; " + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un ; " + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 var expresion3 = optionalStatementExpressionList();
                 if (CurrentToken.Tipo != TokenTipos.ParentesisDerecho)
                 {
-                    throw new ParserException("se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                var cuerpo = embeddedStatement();
-               return new ForNode() { cuerpo = cuerpo, expresionInicio = expresion1, expresionCondicional = expresion2, expresionFinal = expresion3,token = token };
+               return new ForNode() { archivo = archivo, cuerpo = cuerpo, expresionInicio = expresion1, expresionCondicional = expresion2, expresionFinal = expresion3, token = token };
             }
                 return null;
 
@@ -1236,16 +1253,23 @@ namespace Compiladores
         {
             if (Type.Contains(CurrentToken.Tipo) || CurrentToken.Tipo == TokenTipos.PalabraReservadaVar || CurrentToken.Tipo == TokenTipos.Identificador) {
                 var identificador = CurrentToken;
-                getNextToken();
+                var tipo = type();
+            
                 if (CurrentToken.Tipo == TokenTipos.Identificador)
                 {
-                    return variableDeclaratorList();
+
+                    var lista = variableDeclaratorList();
+                    foreach (var list in lista)
+                    {
+                        (list as DeclaracionVariableNode).tipo = tipo;
+                    }
+                    return lista;
                 }
                 else if(CurrentToken.Tipo == TokenTipos.Asignacion)
                 {
                     var list = new List<StatementNode>();
                    var asignacion = variableAssigner();
-                   var declaracion = new DeclaracionVariableNode() { identificador = identificador.Lexema, inicializacion = asignacion ,token = identificador };
+                   var declaracion = new DeclaracionVariableNode() { archivo = archivo, identificador = identificador.Lexema, inicializacion = asignacion, token = identificador };
                    list.Add(declaracion);
                    return list;
                 }
@@ -1290,25 +1314,40 @@ namespace Compiladores
             {
                 var tipoPosible = CurrentToken;
                 getNextToken();
-               
+                List<List<ExpressionNode>> array = new List<List<ExpressionNode>>();
+                if (CurrentToken.Tipo == TokenTipos.CorcheteIzquierdo)
+                {
+                    getNextToken();
+                    if (CurrentToken.Tipo == TokenTipos.Separador)
+                    {
+
+                        array = Expression.optionalRankSpecifierList();
+                    }
+                    else { 
+                        lexico._cursor=lexico._cursor-2;
+                        getNextToken();
+                    }
+                    
+                }
                 if (CurrentToken.Tipo == TokenTipos.Identificador)
                 {
                     var identificador = CurrentToken;
                     getNextToken();
-                    var tipo = new DefinicionTipoNode() { tipounico = tipoPosible.Lexema, token = tipoPosible };
+                    var tipo = new DefinicionTipoNode() { archivo = archivo, tipounico = tipoPosible.Lexema, token = tipoPosible, array = array };
                     var espresion = variableAssigner();
                     var lista = variableDeclaratorListP();
-                    return new DeclaracionVariableNode() { tipo = tipo, identificador = identificador.Lexema, inicializacion = espresion, declarationList = lista, token = tipoPosible};
+                    return new DeclaracionVariableNode() { archivo = archivo, tipo = tipo, identificador = identificador.Lexema, inicializacion = espresion, declarationList = lista, token = tipoPosible };
                 }
 
                 var id = Expression.optionalFunctOrArrayCall(tipoPosible.Lexema);
                 var identificadorT = Expression.primaryExpressionsP(id);
 
                 if (identificadorT is UnaryOperatorNode)
-                    return new UnaryStatemetNode() { expresion = identificadorT as UnaryOperatorNode, token = tipoPosible };
+                    return new UnaryStatemetNode() { archivo = archivo, expresion = identificadorT as UnaryOperatorNode, token = tipoPosible };
                 else if (identificadorT is CallFuntionNode)
                     return new CallFuncionStatementNode()
                     {
+                        archivo = archivo,
                         nombre = (id as CallFuntionNode).nombre,
                         ListaDeAccesores = (id as CallFuntionNode).ListaDeAccesores,
                         parametros = (id as CallFuntionNode).parametros,
@@ -1318,13 +1357,14 @@ namespace Compiladores
                 var listaExpresion = new List<ExpressionNode>();
                 if (AssignmentOperator.Contains(CurrentToken.Tipo)){
                          asignasion = variableAssigner();
-                         return new AssignasionVariable() { identificador = identificadorT as IdentificadoresExpressionNode, expresion = asignasion, token = tipoPosible };
+                         return new AssignasionVariable() { archivo = archivo, identificador = identificadorT as IdentificadoresExpressionNode, expresion = asignasion, token = tipoPosible };
                 }
                 else    if((identificadorT as IdentificadoresExpressionNode).ListaDeAccesores.Count == 0) 
                 {
                   listaExpresion = statementExpressionP();
                   return new CallFuncionStatementNode()
                   {
+                      archivo = archivo,
                       nombre = (identificadorT as IdentificadoresExpressionNode).nombre,
                       ListaDeAccesores = (identificadorT as IdentificadoresExpressionNode).ListaDeAccesores,
                       parametros = listaExpresion,
@@ -1335,34 +1375,80 @@ namespace Compiladores
                 {
                     return new IdentificadoresStatementNode()
                     {
+                        archivo = archivo,
                         nombre = (identificadorT as IdentificadoresExpressionNode).nombre,
                         ListaDeAccesores = (identificadorT as IdentificadoresExpressionNode).ListaDeAccesores
                     };
-                }
-
-                    
+                }  
                 
             }
            else
            {
-               var token = CurrentToken; 
-               var unary = optionalUnaryExpression();
-               ExpressionNode expresion = null;
-                if(unary is CastNode)
-                    (unary as CastNode).expresion = Expression.primaryExpressions();
-                else if(CurrentToken.Tipo != TokenTipos.ParentesisDerecho)
-                    expresion = Expression.primaryExpressions();
+               var token = CurrentToken;
+               if (CurrentToken.Tipo == TokenTipos.AutoOperacionDecremento || CurrentToken.Tipo == TokenTipos.AutoOperacionIncremento)
+               {
+                    var unary = optionalUnaryExpression();
+                    if (unary is UnaryOperatorNode)
+                    {
+                        return new UnaryStatemetNode() { archivo = archivo, expresion = unary as UnaryOperatorNode, token = token };
+                    }
+               } 
+               else if (CurrentToken.Tipo == TokenTipos.PalabraReservadaThis){
+                   getNextToken();
+                   getNextToken();
+                   var id2 = CurrentToken;
+                   if (CurrentToken.Tipo != TokenTipos.Identificador)
+                   {
+                       throw new ParserException("se esperaba un identificador fila" + CurrentToken.Fila + "columana" + CurrentToken.Columna);
+                   }
+                   getNextToken();
+                   var id = Expression.optionalFunctOrArrayCall(id2.Lexema);
+                   var identificadorT = Expression.primaryExpressionsP(id);
+                 
+                   ExpressionNode asignasion = null;
+                   if (AssignmentOperator.Contains(CurrentToken.Tipo))
+                   {
 
-                ExpressionNode asignasion = null;
-                var listaExpresion = new List<ExpressionNode>();
-                if (AssignmentOperator.Contains(CurrentToken.Tipo))
-                 asignasion =   variableAssigner();
-                else
-                   listaExpresion = statementExpressionP();
-                return new StatementExpresion() { UnarioOperador = unary, expresion = expresion, inicializacion = asignasion, expresionP = listaExpresion,token = token };
+                      asignasion = variableAssigner();
+                   }
+                   return new ThisStatementNode() { expresion = new ThisNode() { expresion = identificadorT }, Asignacion = asignasion };
                }
+               else if (CurrentToken.Tipo == TokenTipos.ParentesisIzquierdo) {
+                   var expresion = Expression.primaryExpressions();
+                   if (!(expresion is AsNode))
+                   {
+                       throw new ParserException(archivo + "expresion no aceptada " + CurrentToken.Columna + " " + CurrentToken.Fila);
+                   }
+                   ExpressionNode asignasion = null;
+                   var listaExpresion = new List<ExpressionNode>();
+                   if (AssignmentOperator.Contains(CurrentToken.Tipo)){
+                       asignasion = variableAssigner();
+                       return new AsStatemetNode() { asVariable = expresion as AsNode, archivo = archivo, Asignasion = asignasion };
+                   }   
+                   else if (CurrentToken.Tipo == TokenTipos.AutoOperacionDecremento || CurrentToken.Tipo == TokenTipos.AutoOperacionIncremento)
+                    {
+                       
+                        getNextToken();
+                        var unary = new UnaryOperatorNode();
+                        if (CurrentToken.Tipo == TokenTipos.AutoOperacionDecremento)
+                            unary = new UnaryAutoOperacionDecrementoNode() { archivo = archivo, token = token , Operando = expresion };
+                        else
+                            unary = new UnaryAutoOperacionIncrementoNode() { archivo = archivo, token = token, Operando = expresion };
+
+                        return new UnaryStatemetNode() { archivo = archivo, expresion = unary as UnaryOperatorNode, token = token };
+                    }
+
+                   return new AsStatemetNode() { asVariable = expresion as AsNode, archivo = archivo };
+               }
+               else
+               {
+                   throw new SemanticoException("statement no aceptado" + token.Fila + "columna" + token.Columna);
+               } 
+             
+              
             }
-        
+           return null;
+           }
         private List<ExpressionNode> statementExpressionP()
         {
             if (CurrentToken.Tipo == TokenTipos.ParentesisIzquierdo)
@@ -1371,7 +1457,7 @@ namespace Compiladores
                var argumentos = Expression.argumentList();
                 if (CurrentToken.Tipo != TokenTipos.ParentesisDerecho)
                 {
-                    throw new ParserException("se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
             }
@@ -1381,9 +1467,9 @@ namespace Compiladores
                 getNextToken();
                 var unary = new UnaryOperatorNode();
                 if (CurrentToken.Tipo == TokenTipos.AutoOperacionDecremento)
-                    unary = new UnaryAutoOperacionDecrementoNode() {  token = token};
+                    unary = new UnaryAutoOperacionDecrementoNode() { archivo = archivo, token = token };
                 else
-                    unary = new UnaryAutoOperacionIncrementoNode() { token = token };
+                    unary = new UnaryAutoOperacionIncrementoNode() { archivo = archivo, token = token };
                 var lista = new List<ExpressionNode>();
                 lista.Add(unary);
                 return lista;
@@ -1411,12 +1497,13 @@ namespace Compiladores
                var tipo = type();
                 if (CurrentToken.Tipo != TokenTipos.ParentesisDerecho)
                 {
-                    throw new ParserException("se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
-                return new CastNode() { tipo = tipo.tipounico, token = token };
+                return new CastNode() { archivo = archivo, tipo = tipo.tipounico, token = token };
 
             }
+
             else {
                 return null;
             }
@@ -1430,17 +1517,18 @@ namespace Compiladores
                 getNextToken();
                 if (CurrentToken.Tipo != TokenTipos.ParentesisIzquierdo)
                 {
-                    throw new ParserException("se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                var expresion = Expression.Expressions();
+              
                 if (CurrentToken.Tipo != TokenTipos.ParentesisDerecho)
                 {
-                    throw new ParserException("se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 var cuerpo = embeddedStatement();
-                return new WhileNode() { cuerpo = cuerpo, expresion = expresion, token = token };
+                return new WhileNode() { archivo = archivo, cuerpo = cuerpo, expresion = expresion, token = token };
             }
             return null;
         }
@@ -1469,27 +1557,27 @@ namespace Compiladores
                 getNextToken();
                 if (CurrentToken.Tipo != TokenTipos.ParentesisIzquierdo)
                 {
-                    throw new ParserException("se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                var expresion = Expression.Expressions();
                 if (CurrentToken.Tipo != TokenTipos.ParentesisDerecho)
                 {
-                    throw new ParserException("se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 if (CurrentToken.Tipo != TokenTipos.LlaveIzquierdo)
                 {
-                    throw new ParserException("se esperaba un llave" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un llave" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                var casos = optionalSwitchSectionList();
                 if (CurrentToken.Tipo != TokenTipos.LlaveDerecho)
                 {
-                    throw new ParserException("se esperaba un llave" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un llave" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
-                return new SwitchNode() { expresion = expresion, casos = casos, token = token };
+                return new SwitchNode() { archivo = archivo, expresion = expresion, casos = casos, token = token };
             }
             return null;
         }
@@ -1538,10 +1626,10 @@ namespace Compiladores
               var expresion =  Expression.Expressions();
                 if (CurrentToken.Tipo != TokenTipos.DosPuntos)
                 {
-                    throw new ParserException("se esperaba : " + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba : " + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
-                return new CasosNode() { expresion = expresion, token = token };
+                return new CasosNode() { archivo = archivo, expresion = expresion, token = token };
             }
             else if (CurrentToken.Tipo == TokenTipos.PalabraReservadaDefault)
             {
@@ -1549,10 +1637,10 @@ namespace Compiladores
                 getNextToken();
                 if (CurrentToken.Tipo != TokenTipos.DosPuntos)
                 {
-                    throw new ParserException("se esperaba : " + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba : " + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
-                return new DefaulNode() { token = token };
+                return new DefaulNode() { archivo = archivo, token = token };
             } return null;
         }
 
@@ -1564,18 +1652,18 @@ namespace Compiladores
                 getNextToken();
                 if (CurrentToken.Tipo != TokenTipos.ParentesisIzquierdo)
                 {
-                    throw new ParserException("se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 var expresion = Expression.Expressions();
                 if (CurrentToken.Tipo != TokenTipos.ParentesisDerecho)
                 {
-                    throw new ParserException("se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
+                    throw new ParserException(archivo+"se esperaba un parentesis" + CurrentToken.Columna + " " + CurrentToken.Fila);
                 }
                 getNextToken();
                 var cuerpo = embeddedStatement();
                var elsevar =  optionalElsePart();
-               return new IfNode() { expresion = expresion, cuerpo = cuerpo, elseVariable = elsevar, token = token };
+               return new IfNode() { archivo = archivo, expresion = expresion, cuerpo = cuerpo, elseVariable = elsevar, token = token };
             }
             return null;
             
@@ -1599,7 +1687,7 @@ namespace Compiladores
                 var token = CurrentToken;
                 getNextToken();
                var cuerpo = embeddedStatement();
-               return new ElseNode() { cuerpo = cuerpo, token = token };
+               return new ElseNode() { archivo = archivo, cuerpo = cuerpo, token = token };
             }
             return null;
         }

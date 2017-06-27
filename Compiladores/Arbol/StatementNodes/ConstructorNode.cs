@@ -28,10 +28,45 @@ namespace Compiladores.Arbol.StatementNodes
             {
                 statement.ValidateSemantic();
                 if (statement is ReturnNode)
-                    throw new SemanticoException("no se puede hacer retorno en un constructor fila"+statement.token.Fila+"columna"+statement.token.Columna);
+                    throw new SemanticoException(archivo+"no se puede hacer retorno en un constructor fila"+statement.token.Fila+"columna"+statement.token.Columna);
             }
             ContenidoStack.InstanceStack.Stack.Pop();
         }
-       
+        public override string GenerarCodigo()
+        {
+            string value = "constructor(";
+            if (parametro != null)
+            {
+                var parametroArray = parametro.ToArray();
+                for (int i = 0; i < parametroArray.Length; i++)
+                {
+                    value += parametroArray[i].GenerarCodigo();
+                    if (i < parametroArray.Length - 1)
+                        value += ",";
+                }
+            }
+            value += ")\n{";
+            if (baseParametos != null && baseParametos.Count != 0)
+            {
+                value += "\n super(";
+                var parametroArray = baseParametos.ToArray();
+                for (int i = 0; i < parametroArray.Length; i++)
+                {
+                    value += parametroArray[i].GenerarCodigo();
+                    if (i < parametroArray.Length - 1)
+                        value += ",";
+                }
+                value += ");";
+            }
+            if (constructorCuerpo != null)
+                foreach (var lista in constructorCuerpo)
+                {
+                    value += "\n"+lista.GenerarCodigo();
+
+                }
+                    
+            value += "\n}";
+            return value;
+        }
     }
 }

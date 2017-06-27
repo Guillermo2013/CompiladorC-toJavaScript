@@ -8,5 +8,9 @@ namespace Compiladores.Arbol.BinaryNodes
 {
     class NoEsNullNode:BinaryOperatorNode
     {
+        public override string GenerarCodigo()
+        {
+            return "(" + OperadorIzquierdo.GenerarCodigo() + "!=null)?" + OperadorIzquierdo.GenerarCodigo()+":"+ OperadorDerecho.GenerarCodigo();
+        }
     }
 }

@@ -13,8 +13,7 @@ using Compiladores.Arbol;
 using Compiladores.Arbol.StatementNodes;
 namespace Compiladores
 {
-    namespace hola {}
-
+  
    public class Expression
     {
         private readonly Parser Parse;
@@ -43,10 +42,10 @@ namespace Compiladores
                Parse.getNextToken();
                var expresionTrue = Expressions();
                 if (Parse.CurrentToken.Tipo != TokenTipos.DosPuntos)
-                    throw new ParserException("Se esperaba dos puntos en operacion ternaria"+Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
+                    throw new ParserException(Parse.archivo+"Se esperaba dos puntos en operacion ternaria"+Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
                 Parse.getNextToken();
                 var expresionFalse = Expressions();
-                return new ExpressionTernario() { expresion = expresion, expresionTrue = expresionTrue, expresionFalse = expresionFalse, token = token };
+                return new ExpressionTernario() { archivo = Parse.archivo,expresion = expresion, expresionTrue = expresionTrue, expresionFalse = expresionFalse, token = token };
             }
             else {
                 return expresion;
@@ -67,7 +66,12 @@ namespace Compiladores
                 var token = Parse.CurrentToken;
                 Parse.getNextToken();
                 var expresionDerecho = nullCoalescingExpressions();
-                return new NoEsNullNode() { operador = Parse.CurrentToken.Lexema, OperadorIzquierdo = expresion, OperadorDerecho = expresionDerecho , token = token 
+                return new NoEsNullNode()
+                {
+                    archivo = Parse.archivo,operador = Parse.CurrentToken.Lexema,
+                    OperadorIzquierdo = expresion,
+                    OperadorDerecho = expresionDerecho,
+                    token = token 
                 };
             }
             else {
@@ -88,7 +92,7 @@ namespace Compiladores
                 var token = Parse.CurrentToken;
                 Parse.getNextToken();
               var expresionDerecho = nullCoalescingExpressions();
-              var expresionIzquierda = new LogicosONode() { operador = Parse.CurrentToken.Lexema, OperadorIzquierdo = expresion, OperadorDerecho = expresionDerecho ,token = token};
+              var expresionIzquierda = new LogicosONode() { archivo = Parse.archivo, operador = Parse.CurrentToken.Lexema, OperadorIzquierdo = expresion, OperadorDerecho = expresionDerecho, token = token };
                return conditionalOrExpressionsP(expresionIzquierda);
             }
             else {
@@ -108,7 +112,7 @@ namespace Compiladores
                 var token = Parse.CurrentToken;
                 Parse.getNextToken();
                var expresionDerecho = inclusiveOrExpressions();
-               var expresionIzquierda = new LogicosYNode() { operador = Parse.CurrentToken.Lexema, OperadorIzquierdo = expresion, OperadorDerecho = expresionDerecho ,token = token};
+               var expresionIzquierda = new LogicosYNode() { archivo = Parse.archivo, operador = Parse.CurrentToken.Lexema, OperadorIzquierdo = expresion, OperadorDerecho = expresionDerecho, token = token };
                return conditionalAndExpressionsP(expresionIzquierda);
             }
             else {
@@ -129,7 +133,7 @@ namespace Compiladores
                 var token = Parse.CurrentToken;
                 Parse.getNextToken();
                 var expresionDerecho = exclusiveOrExpressions();
-                var expresionIzquierda = new OPorBitNode() { operador = Parse.CurrentToken.Lexema, OperadorIzquierdo = expresion, OperadorDerecho = expresionDerecho,token = token };
+                var expresionIzquierda = new OPorBitNode() { archivo = Parse.archivo, operador = Parse.CurrentToken.Lexema, OperadorIzquierdo = expresion, OperadorDerecho = expresionDerecho, token = token };
                 return inclusiveOrExpressionsP(expresionIzquierda);
             }
             else {
@@ -150,7 +154,7 @@ namespace Compiladores
                 var token = Parse.CurrentToken;
                 Parse.getNextToken();
                 var expresionDerecho = andExpressions();
-                var expresionIzquierda = new OExclusivoPorBitNode() { operador = Parse.CurrentToken.Lexema, OperadorIzquierdo = expresion, OperadorDerecho = expresionDerecho ,token = token};
+                var expresionIzquierda = new OExclusivoPorBitNode() { archivo = Parse.archivo, operador = Parse.CurrentToken.Lexema, OperadorIzquierdo = expresion, OperadorDerecho = expresionDerecho, token = token };
                 return exclusiveOrExpressionsP(expresionIzquierda);
 
             }
@@ -172,7 +176,7 @@ namespace Compiladores
                 var token = Parse.CurrentToken;
                 Parse.getNextToken();
                 var expresionDerecho = equalityExpressions();
-                var expresionIzquierda = new YPorBitNode() { operador = Parse.CurrentToken.Lexema, OperadorIzquierdo = expresion, OperadorDerecho = expresionDerecho ,token = token};
+                var expresionIzquierda = new YPorBitNode() { archivo = Parse.archivo, operador = Parse.CurrentToken.Lexema, OperadorIzquierdo = expresion, OperadorDerecho = expresionDerecho, token = token };
                 return andExpressionsP(expresionIzquierda);
             }
             else {
@@ -205,9 +209,9 @@ namespace Compiladores
                 var token = Parse.CurrentToken;
                 Parse.getNextToken();
                 if (token.Tipo == TokenTipos.RelacionalIgual)
-                    return new RelacionalIgualNode() { operador = token.Lexema ,token = token  };
+                    return new RelacionalIgualNode() { archivo = Parse.archivo,operador = token.Lexema, token = token };
                 else if (token.Tipo == TokenTipos.RelacionalNoIgual)
-                    return new RelacionalNoIgualNode() { operador = token.Lexema, token = token };
+                    return new RelacionalNoIgualNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
                 
                 }
             return null;
@@ -233,6 +237,7 @@ namespace Compiladores
                 var operador = IsAsOperators();
                 operador.OperadorIzquierdo = expresion;
                 operador.OperadorDerecho = type();
+               
                return relationalExpressionsP(operador);
             }else{
                 return expresion;
@@ -246,11 +251,11 @@ namespace Compiladores
             {
                 var token = Parse.CurrentToken;
                 Parse.getNextToken();
-                return new DefinicionTipoNode() { tipounico = token.Lexema,token = token };
+                return new DefinicionTipoNode() { archivo = Parse.archivo, tipounico = token.Lexema, token = token };
             }
             else
             {
-                throw new ParserException("se esperaba un tipo de dato"+Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
+                throw new ParserException(Parse.archivo + "se esperaba un tipo de dato" + Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
             }
         }
 
@@ -261,9 +266,9 @@ namespace Compiladores
                 var token = Parse.CurrentToken;
                 Parse.getNextToken();
                 if (token.Tipo == TokenTipos.PalabraReservadaAs)
-                    return new AsNode() { operador = token.Lexema, token = token };
+                    return new AsNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
                 if (token.Tipo == TokenTipos.PalabraReservadaIs)
-                    return new IsNode() { operador = token.Lexema, token = token };
+                    return new IsNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
             }
             return null;
         }
@@ -275,13 +280,13 @@ namespace Compiladores
                 var token = Parse.CurrentToken;
                 Parse.getNextToken();
                 if (token.Tipo == TokenTipos.RelacionalMayor)
-                    return new RelacionalMayorNode() { operador = token.Lexema, token = token };
+                    return new RelacionalMayorNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
                 if (token.Tipo == TokenTipos.RelacionalMayorOIgual)
-                    return new RelacionalMayorOIgualNode() { operador = token.Lexema, token = token };
+                    return new RelacionalMayorOIgualNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
                 if (token.Tipo == TokenTipos.RelacionalMenor)
-                    return new RelacionalMenorNode() { operador = token.Lexema, token = token };
+                    return new RelacionalMenorNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
                 if (token.Tipo == TokenTipos.RelacionalMayorOIgual)
-                    return new RelacionalMenorOIgualNode() { operador = token.Lexema, token = token };
+                    return new RelacionalMenorOIgualNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
             }
             return null;
         }
@@ -312,9 +317,9 @@ namespace Compiladores
                 var token = Parse.CurrentToken;
                 Parse.getNextToken();
                 if (token.Tipo == TokenTipos.DeplazamientoDerecha)
-                    return new DeplazamientoDerechaNode() { operador = token.Lexema, token = token };
+                    return new DeplazamientoDerechaNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
                 else if (token.Tipo == TokenTipos.DeplazamientoIzquierda)
-                    return new DeplazamientoIzquierdaNode() { operador = token.Lexema, token = token };
+                    return new DeplazamientoIzquierdaNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
             }
             return null;
         }
@@ -346,9 +351,9 @@ namespace Compiladores
                 var token = Parse.CurrentToken;
                 Parse.getNextToken();
                 if (token.Tipo == TokenTipos.OperacionSuma)
-                    return new SumaNode() { operador = token.Lexema, token = token };
+                    return new SumaNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
                 if (token.Tipo == TokenTipos.OperacionResta)
-                    return new RestaNode() { operador = token.Lexema, token = token };
+                    return new RestaNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
             }
             return null;
         }
@@ -397,11 +402,11 @@ namespace Compiladores
                 var token = Parse.CurrentToken;
                 Parse.getNextToken();
                 if (token.Tipo == TokenTipos.OperacionMultiplicacion)
-                    return new MultiplicacionNode() { operador = token.Lexema, token = token };
+                    return new MultiplicacionNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
                 else if (token.Tipo == TokenTipos.OperacionDivision)
-                    return new DivisionNode() { operador = token.Lexema, token = token };
+                    return new DivisionNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
                 else if (token.Tipo == TokenTipos.OperacionDivisionResiduo)
-                    return new ResiduoNode() { operador = token.Lexema, token = token };
+                    return new ResiduoNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
             }
             return null;
         }
@@ -413,27 +418,27 @@ namespace Compiladores
                 var token = Parse.CurrentToken;
                 Parse.getNextToken();
                 if (token.Tipo == TokenTipos.Asignacion)
-                    return new AsignacionNode() { operador = token.Lexema, token = token };
+                    return new AsignacionNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
                 else if (token.Tipo == TokenTipos.AutoOperacionSuma)
-                    return new AutoOperacionSumaNode() { operador = token.Lexema, token = token };
+                    return new AutoOperacionSumaNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
                 else if (token.Tipo == TokenTipos.AutoOperacionResta)
-                    return new AutoOperacionRestaNode() { operador = token.Lexema, token = token };
+                    return new AutoOperacionRestaNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
                 else if (token.Tipo == TokenTipos.AutoOperacionMultiplicacion)
-                    return new AutoOperacionMultiplicacionNode() { operador = token.Lexema, token = token };
+                    return new AutoOperacionMultiplicacionNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
                 else if (token.Tipo == TokenTipos.AutoOperacionDivision)
-                    return new AutoOperacionDivisionNode() { operador = token.Lexema, token = token };
+                    return new AutoOperacionDivisionNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
                 else if (token.Tipo == TokenTipos.AutoOperacionResiduo)
-                    return new AutoOperacionResiduoNode() { operador = token.Lexema };
+                    return new AutoOperacionResiduoNode() { archivo = Parse.archivo, operador = token.Lexema };
                 else if (token.Tipo == TokenTipos.AutoOperacionOExclusivoPorBit)
-                    return new AutoOperacionOExclusivoPorBitNode() { operador = token.Lexema, token = token };
+                    return new AutoOperacionOExclusivoPorBitNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
                 else if (token.Tipo == TokenTipos.AutoOperacionAndPorBit)
-                    return new AutoOperacionAndPorBitNode() { operador = token.Lexema, token = token };
+                    return new AutoOperacionAndPorBitNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
                 else if (token.Tipo == TokenTipos.AutoOperacionOrPorBit)
-                    return new AutoOperacionOrPorBitNode() { operador = token.Lexema, token = token };
+                    return new AutoOperacionOrPorBitNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
                 else if (token.Tipo == TokenTipos.AutoDeplazamientoDerecha)
-                    return new AutoDeplazamientoDerechaNode() { operador = token.Lexema, token = token };
+                    return new AutoDeplazamientoDerechaNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
                 else if (token.Tipo == TokenTipos.AutoDeplazamientoIzquierda)
-                    return new AutoDeplazamientoIzquierdaNode() { operador = token.Lexema, token = token };
+                    return new AutoDeplazamientoIzquierdaNode() { archivo = Parse.archivo, operador = token.Lexema, token = token };
             }
             return null;
         }
@@ -465,19 +470,19 @@ namespace Compiladores
                 var token = Parse.CurrentToken; 
                 Parse.getNextToken();
                 if (token.Tipo == TokenTipos.AutoOperacionIncremento)
-                    return new UnaryAutoOperacionIncrementoNode() { Value = token.Lexema, token = token };
+                    return new UnaryAutoOperacionIncrementoNode() { archivo = Parse.archivo, Value = token.Lexema, token = token };
                 else if (token.Tipo == TokenTipos.AutoOperacionDecremento)
-                    return new UnaryAutoOperacionDecrementoNode() { Value = token.Lexema, token = token };
+                    return new UnaryAutoOperacionDecrementoNode() { archivo = Parse.archivo, Value = token.Lexema, token = token };
                 else if (token.Tipo == TokenTipos.Negacion)
-                    return new UnaryNegacionNode() { Value = token.Lexema, token = token };
+                    return new UnaryNegacionNode() { archivo = Parse.archivo, Value = token.Lexema, token = token };
                 else if (token.Tipo == TokenTipos.NegacionPorBit)
-                    return new UnaryNegacionPorBitNode() { Value = token.Lexema, token = token };
+                    return new UnaryNegacionPorBitNode() { archivo = Parse.archivo, Value = token.Lexema, token = token };
                 else if (token.Tipo == TokenTipos.NegacionPorBit)
-                    return new UnaryNegacionPorBitNode() { Value = token.Lexema, token = token };
+                    return new UnaryNegacionPorBitNode() { archivo = Parse.archivo, Value = token.Lexema, token = token };
                 else if (token.Tipo == TokenTipos.OperacionSuma)
-                    return new UnaryOperadorSuma() { Value = token.Lexema, token = token };
+                    return new UnaryOperadorSuma() { archivo = Parse.archivo, Value = token.Lexema, token = token };
                 else if (token.Tipo == TokenTipos.OperacionResta)
-                    return new UnarioOperadorResta() { Value = token.Lexema, token = token };
+                    return new UnarioOperadorResta() { archivo = Parse.archivo, Value = token.Lexema, token = token };
 
              }
             return null;
@@ -489,7 +494,7 @@ namespace Compiladores
             if (Parse.CurrentToken.Tipo == TokenTipos.PalabraReservadaNew)
             {
                 Parse.getNextToken();
-              var newToken = instanceExpressions(new NewExpressionNode());
+                var newToken = instanceExpressions(new NewExpressionNode() { archivo = Parse.archivo});
               return primaryExpressionsP(newToken);
             }
             else if (Parse.Literal.Contains(Parse.CurrentToken.Tipo))
@@ -501,8 +506,9 @@ namespace Compiladores
             {
                 var token = Parse.CurrentToken;
                 Parse.getNextToken();
-                var expresion = primaryExpressionsP(null);
-                return new ThisNode() { expresion = expresion, token = token };
+                Parse.getNextToken();
+                var expresion = primaryExpressions();
+                return new ThisNode() { archivo = Parse.archivo, expresion = expresion, token = token };
             }
 
             else if (Parse.CurrentToken.Tipo == TokenTipos.Identificador)
@@ -520,24 +526,40 @@ namespace Compiladores
                     Parse.getNextToken();
                     if (Parse.CurrentToken.Tipo != TokenTipos.ParentesisDerecho)
                     {
-                        throw new ParserException("se esperaba un parentesis" + Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
+                        throw new ParserException(Parse.archivo+"se esperaba un parentesis" + Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
                     }
                     Parse.getNextToken();
-                    return new CastNode() { tipo = tipo.Lexema,expresion = primaryExpressions(), token = tipo};
+                    return new CastNode() { archivo = Parse.archivo, tipo = tipo.Lexema, expresion = primaryExpressions(), token = tipo };
                 }
                 else
                 {
-                 var expresion = Expressions();
+                    var expresion = Expressions();
+
                     if (Parse.CurrentToken.Tipo != TokenTipos.ParentesisDerecho)
                     {
-                        throw new ParserException("se esperaba un parentesis" + Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
+                        throw new ParserException(Parse.archivo+"se esperaba un parentesis" + Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
                     }
                     Parse.getNextToken();
+                    if (expresion is IdentificadoresExpressionNode && Parse.CurrentToken.Tipo == TokenTipos.Identificador)
+                    {
+
+                        var tipo = (expresion as IdentificadoresExpressionNode).nombre;
+
+                        return new CastNode() { archivo = Parse.archivo, tipo = tipo, expresion = primaryExpressions(), token = expresion.token };
+                    } if (expresion is AsNode)
+                    {
+                        if (Parse.CurrentToken.Tipo == TokenTipos.Punto)
+                        {
+                            var punto = primaryExpressionsP(null);
+                            (expresion as AsNode).ListaDeAccesores.Add(new PuntoAccesor() { archivo = Parse.archivo, identificador = (punto as PuntoExpresion).OperadorDerecho });
+                        }
+                    }
+
                     return expresion;
                 }
             }
-            else 
-                throw new ParserException("Se esperaba un new ,Literal, identificador"+Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
+            else
+                throw new ParserException(Parse.archivo + "Se esperaba un new ,Literal, identificador" + Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
           
         }
         private NewExpressionNode instanceExpressions(NewExpressionNode expresion)
@@ -547,7 +569,25 @@ namespace Compiladores
                 expresion.tipo = type() as DefinicionTipoNode;
                return instanceExpressionsFactorized(expresion);
             }
-            throw new ParserException("se espere un tipo de dato");
+            throw new ParserException(Parse.archivo + "se espere un tipo de dato");
+        }
+        public List<List<ExpressionNode>> variousLis()
+        {
+            if (Parse.CurrentToken.Tipo == TokenTipos.CorcheteIzquierdo)
+            {
+                var token = Parse.CurrentToken;
+                Parse.getNextToken();
+                var lista1 =ExpressionsList();
+                if (Parse.CurrentToken.Tipo != TokenTipos.CorcheteDerecho)
+                {
+                    throw new ParserException(Parse.archivo + "Se esperaba un Corchete " + Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
+                }
+                Parse.getNextToken();
+                var lista = variousLis();
+                lista.Insert(0, lista1);
+                return lista;
+            }
+            else return new List<List<ExpressionNode>>();
         }
 
         private NewExpressionNode instanceExpressionsFactorized(NewExpressionNode expresion)
@@ -555,16 +595,9 @@ namespace Compiladores
             
             if (Parse.CurrentToken.Tipo == TokenTipos.CorcheteIzquierdo)
             {
-                var token = Parse.CurrentToken;
-                Parse.getNextToken();
-                expresion.arraySize.Add( ExpressionsList());
-                if (Parse.CurrentToken.Tipo != TokenTipos.CorcheteDerecho)
-                {
-                    throw new ParserException("Se esperaba un Corchete "+Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
-                }
-                Parse.getNextToken();
-             
-                expresion.inicializable = new ArrayNode() { expresion = optionalArrayInitializer() , tipo = expresion.tipo, token = token};
+                expresion.tipo.array = variousLis();
+                if (Parse.CurrentToken.Tipo == TokenTipos.LlaveIzquierdo)
+                    expresion.inicializable = new ArrayNode() { archivo = Parse.archivo, expresion = optionalArrayInitializer(), tipo = expresion.tipo, token = expresion.tipo.token };
                 return expresion;
             }
             else if (Parse.CurrentToken.Tipo == TokenTipos.ParentesisIzquierdo)
@@ -573,15 +606,15 @@ namespace Compiladores
               var argumentlist =  argumentList();
                 if (Parse.CurrentToken.Tipo != TokenTipos.ParentesisDerecho)
                 {
-                    throw new ParserException("Se esperaba un Corchete "+Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
+                    throw new ParserException(Parse.archivo + "Se esperaba un Corchete " + Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
                 }
                 Parse.getNextToken();
                 expresion.parametros = argumentlist;
                 return expresion;
             }else{
                 var token = Parse.CurrentToken;
-                expresion.arraySize = rankSpecifierList();
-                expresion.inicializable = new ArrayNode() { expresion = arrayInitializer(),token = token };
+                expresion.tipo.array = rankSpecifierList();
+                expresion.inicializable = new ArrayNode() { archivo = Parse.archivo, expresion = arrayInitializer(), token = token };
                 return expresion;
             }
             
@@ -601,7 +634,7 @@ namespace Compiladores
                 var comas = optionalCommaList();
                 if (Parse.CurrentToken.Tipo != TokenTipos.CorcheteDerecho)
                 {
-                    throw new ParserException("se esperaba un corchete"+Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);                   
+                    throw new ParserException(Parse.archivo + "se esperaba un corchete" + Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);                   
                 }
                 Parse.getNextToken();
                 return comas;
@@ -627,7 +660,7 @@ namespace Compiladores
                 Parse.getNextToken();
                 var lista = new List<ExpressionNode>();
                 var listaExpresion = optionalCommaList();
-                listaExpresion.Insert(0, new SeparadorNode() {  token = token});
+                listaExpresion.Insert(0, new SeparadorNode() { archivo = Parse.archivo, token = token });
                 return listaExpresion;
             }
             else
@@ -654,7 +687,7 @@ namespace Compiladores
                 var array = optionalVariableInitializerList();
 
                 if (Parse.CurrentToken.Tipo != TokenTipos.LlaveDerecho)
-                    throw new ParserException("se esperaba llaves " + Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
+                    throw new ParserException(Parse.archivo + "se esperaba llaves " + Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
                 Parse.getNextToken();
                 return array;
             }
@@ -682,7 +715,7 @@ namespace Compiladores
             if (Parse.CurrentToken.Tipo == TokenTipos.LlaveIzquierdo)
             {
                 var token = Parse.CurrentToken;
-                return new ArrayNode() { expresion = arrayInitializer(),token = token }; 
+                return new ArrayNode() { archivo = Parse.archivo, expresion = arrayInitializer(), token = token }; 
                 
             }
             else
@@ -724,18 +757,20 @@ namespace Compiladores
             {
                 var token = Parse.CurrentToken;
                 Parse.getNextToken();
-                if (token.Tipo == TokenTipos.Numero || token.Tipo == TokenTipos.NumeroHexagecimal)
-                    return new LiteralNumerico() { valor = int.Parse(token.Lexema), token = token };
+                if (token.Tipo == TokenTipos.Numero)
+                    return new LiteralNumerico() { archivo = Parse.archivo, valor = int.Parse(token.Lexema), token = token };
+                else if (token.Tipo == TokenTipos.NumeroHexagecimal)
+                    return new LiteralNumerico() { archivo = Parse.archivo, valor = Convert.ToInt32(token.Lexema, 16), token = token };
                 else if (token.Tipo == TokenTipos.NumeroFloat)
-                    return new LiteralesFloat() { valor = float.Parse(token.Lexema), token = token };
+                    return new LiteralesFloat() { archivo = Parse.archivo, valor = float.Parse(token.Lexema.Replace("f","")), token = token };
                 else if (token.Tipo == TokenTipos.LiteralChar)
-                    return new LiteralChar() { valor = char.Parse(token.Lexema), token = token };
+                    return new LiteralChar() { archivo = Parse.archivo, valor = char.Parse(token.Lexema), token = token };
                 else if (token.Tipo == TokenTipos.NumeroBinario)
-                    return new LiteralBinaria() { valor = byte.Parse(token.Lexema), token = token };
+                    return new LiteralBinaria() { archivo = Parse.archivo, valor = byte.Parse(token.Lexema), token = token };
                 else
-                    return new LiteralesStrings() { valor = token.Lexema, token = token };
+                    return new LiteralesStrings() { archivo = Parse.archivo, valor = token.Lexema, token = token };
             }else
-                throw new ParserException("Se esperaba un Literal" + Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
+                throw new ParserException(Parse.archivo + "Se esperaba un Literal" + Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
         
         }
 
@@ -746,7 +781,7 @@ namespace Compiladores
                 Parse.getNextToken();
                 if (Parse.CurrentToken.Tipo != TokenTipos.Identificador)
                 {
-                    throw new ParserException("Se esperaba un identificador"+Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
+                    throw new ParserException(Parse.archivo + "Se esperaba un identificador" + Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
                 }
                 var identificadorString = Parse.CurrentToken.Lexema;
                 var token = Parse.CurrentToken;
@@ -754,11 +789,11 @@ namespace Compiladores
                 var identificador = optionalFunctOrArrayCall(identificadorString);
                 var expresionList = primaryExpressionsP(identificador);
                 if (expresion is IdentificadoresExpressionNode)
-                    (expresion as IdentificadoresExpressionNode).ListaDeAccesores.Add(new PuntoAccesor() { identificador = identificador , token = token});
+                    (expresion as IdentificadoresExpressionNode).ListaDeAccesores.Add(new PuntoAccesor() { archivo = Parse.archivo, identificador = identificador, token = token });
                 else if (expresion is CallFuntionNode)
-                    (expresion as CallFuntionNode).ListaDeAccesores.Add(new PuntoAccesor() { identificador = identificador ,token = token });
+                    (expresion as CallFuntionNode).ListaDeAccesores.Add(new PuntoAccesor() { archivo = Parse.archivo, identificador = identificador, token = token });
                 else
-                    return new PuntoExpresion() { operador = ".", OperadorIzquierdo = expresion, OperadorDerecho = identificador, token = token };
+                    return new PuntoExpresion() { archivo = Parse.archivo, operador = ".", OperadorIzquierdo = expresion, OperadorDerecho = identificador, token = token };
                 return expresion;
             }
             else if (Parse.CurrentToken.Tipo == TokenTipos.AutoOperacionIncremento || Parse.CurrentToken.Tipo == TokenTipos.AutoOperacionDecremento)
@@ -768,15 +803,20 @@ namespace Compiladores
                 Parse.getNextToken();
                 if (Parse.CurrentToken.Tipo == TokenTipos.AutoOperacionDecremento)
                 {
-                    var unaryDec = new UnaryAutoOperacionDecrementoNode() { Value = token.Lexema , Operando = expresion ,token = token};
+                    var unaryDec = new UnaryAutoOperacionDecrementoNode() { archivo = Parse.archivo, Value = token.Lexema, Operando = expresion, token = token };
                     return unaryDec;
                 }
                 else
                 {
-                    var unaryInc = new UnaryAutoOperacionIncrementoNode() { Value = token.Lexema, Operando = expresion, token = token };
+                    var unaryInc = new UnaryAutoOperacionIncrementoNode() { archivo = Parse.archivo, Value = token.Lexema, Operando = expresion, token = token };
                     return unaryInc;
                 }
            
+            }
+            else if (Parse.CurrentToken.Tipo == TokenTipos.CorcheteIzquierdo)
+            {
+                (expresion as CallFuntionNode).ListaDeAccesores.AddRange(optionalArrayAccessList());
+                return primaryExpressionsP(expresion);
             }
             else
             {
@@ -794,21 +834,21 @@ namespace Compiladores
                 var argumentlist = argumentList();
                 if (Parse.CurrentToken.Tipo != TokenTipos.ParentesisDerecho)
                 {
-                    throw new ParserException("Se esperaba un parentesis derecho"+Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
+                    throw new ParserException(Parse.archivo + "Se esperaba un parentesis derecho" + Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
                 }
                 Parse.getNextToken();
-                return new CallFuntionNode() { nombre = identificador, parametros = argumentlist, token = token };
+                return new CallFuntionNode() { archivo = Parse.archivo, nombre = identificador, parametros = argumentlist, token = token };
             
             }
             else if (Parse.CurrentToken.Tipo == TokenTipos.CorcheteIzquierdo)
             {
                 var token = Parse.CurrentToken;
                 var listaArrays = optionalArrayAccessList();
-                return new IdentificadoresExpressionNode() { nombre = identificador, ListaDeAccesores = listaArrays, token = token }; 
+                return new IdentificadoresExpressionNode() { archivo = Parse.archivo, nombre = identificador, ListaDeAccesores = listaArrays, token = token }; 
             }
             else {
                 var token = Parse.CurrentToken;
-                return new IdentificadoresExpressionNode() { nombre = identificador, token = token };
+                return new IdentificadoresExpressionNode() { archivo = Parse.archivo, nombre = identificador, token = token };
             }
         }
 
@@ -821,9 +861,9 @@ namespace Compiladores
                var expresionList = ExpressionsList();
                 if (Parse.CurrentToken.Tipo != TokenTipos.CorcheteDerecho)
                 {
-                    throw new ParserException("Se esperaba un corchete derecho "+Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
+                    throw new ParserException(Parse.archivo+"Se esperaba un corchete derecho "+Parse.CurrentToken.Columna + " " + Parse.CurrentToken.Fila);
                 }
-                var ArrayNode = new ArrayAccesor() { dimension = expresionList, token = token };
+                var ArrayNode = new ArrayAccesor() { archivo = Parse.archivo, dimension = expresionList, token = token };
                 Parse.getNextToken();
                var arrayAccessList =  optionalArrayAccessList();
                arrayAccessList.Insert(0, ArrayNode);

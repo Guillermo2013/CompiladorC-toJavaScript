@@ -25,22 +25,27 @@ namespace Compiladores.Arbol.BinaryNodes
            if (OperadorIzquierdo == null)
                return expresion2;
             if (!(OperadorIzquierdo is Identificadores.IdentificadoresExpressionNode))
-                throw new SemanticoException("no se puede asignar literales  fila " + token.Fila + " columna " + token.Columna);
+                throw new SemanticoException(archivo+"no se puede asignar literales  fila " + token.Fila + " columna " + token.Columna);
             var expresion1 = OperadorIzquierdo.ValidateSemantic();
             if ( expresion1 is VoidTipo || expresion2 is VoidTipo|| expresion1 is EnumTipo || expresion2 is EnumTipo )
-                throw new SemanticoException("no se puede sumar" + expresion1 + " con " + expresion2 + "fila " + token.Fila + " columna " + token.Columna);
+                throw new SemanticoException(archivo+"no se puede sumar" + expresion1 + " con " + expresion2 + "fila " + token.Fila + " columna " + token.Columna);
 
             if (expresion1 is StringTipo || expresion2 is StringTipo)
                 return new StringTipo();
-            if (expresion1 == expresion2)
-                return expresion1;
+            if (expresion1 is IntTipo && expresion2 is IntTipo)
+                return new StringTipo();
             if ((expresion1 is IntTipo && expresion2 is FloatTipo) || (expresion2 is IntTipo && expresion1 is FloatTipo))
                 return new FloatTipo();
             if ((expresion1 is CharTipo && expresion2 is IntTipo) || (expresion2 is CharTipo && expresion1 is IntTipo))
                 return new IntTipo();
+            if (expresion1 == expresion2)
+                return expresion1;
             
-            throw new SemanticoException("no se puede sumar" + expresion1 + " con " + expresion2 + "fila " + token.Fila + " columna " + token.Columna);
+            throw new SemanticoException(archivo+"no se puede sumar" + expresion1 + " con " + expresion2 + "fila " + token.Fila + " columna " + token.Columna);
         }
-       
+        public override string GenerarCodigo()
+        {
+            return OperadorIzquierdo.GenerarCodigo() + " " + operador + " " + OperadorDerecho.GenerarCodigo();
+        }
     }
 }

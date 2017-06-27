@@ -17,6 +17,10 @@ namespace Compiladores.Arbol.StatementNodes
         {
             throw new NotImplementedException();
         }
+        public override string GenerarCodigo()
+        {
+            return "";
+        }
     }
     
 }

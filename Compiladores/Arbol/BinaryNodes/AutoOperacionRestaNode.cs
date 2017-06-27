@@ -25,7 +25,7 @@ namespace Compiladores.Arbol.BinaryNodes
             if (OperadorIzquierdo == null)
                 return expresion2;
             if (!(OperadorIzquierdo is Identificadores.IdentificadoresExpressionNode))
-                throw new SemanticoException("no se puede asignar literales  fila " + token.Fila + " columna " + token.Columna);
+                throw new SemanticoException(archivo+"no se puede asignar literales  fila " + token.Fila + " columna " + token.Columna);
 
             var expresion1 = OperadorIzquierdo.ValidateSemantic();
             if ((expresion1 is IntTipo || expresion1 is FloatTipo) && (expresion2 is FloatTipo || expresion2 is IntTipo))
@@ -36,8 +36,11 @@ namespace Compiladores.Arbol.BinaryNodes
             if (expresion1 is IntTipo && expresion1 is IntTipo)
                 return new IntTipo();
 
-            throw new SemanticoException("no se puede restar" + expresion1 + " con " + expresion2 + "fila " + token.Fila + " columna " + token.Columna);
+            throw new SemanticoException(archivo+"no se puede restar" + expresion1 + " con " + expresion2 + "fila " + token.Fila + " columna " + token.Columna);
         }
-
+        public override string GenerarCodigo()
+        {
+            return OperadorIzquierdo.GenerarCodigo() + " " + operador + " " + OperadorDerecho.GenerarCodigo();
+        }
     }
 }

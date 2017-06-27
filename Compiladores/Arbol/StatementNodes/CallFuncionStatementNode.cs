@@ -16,14 +16,38 @@ namespace Compiladores.Arbol.StatementNodes
         public string nombre;
         public List<ExpressionNode> parametros;
         public List<AccesorNode> ListaDeAccesores;
+        public bool herencia;
         public override void ValidateSemantic()
         {
             var encontro = false;
             encontro = validadFuncionLocal(encontro);
-                encontro = validarHerencia(encontro);
+            herencia = encontro;    
+            encontro = validarHerencia(encontro);
                 validadFinal(ListaDeAccesores);
             if (!encontro)
-                throw new SemanticoException("no se encontro la funcion " + nombre + "fila" + this.token.Fila + "columna" + this.token.Columna);
+                throw new SemanticoException(archivo+"no se encontro la funcion " + nombre + "fila" + this.token.Fila + "columna" + this.token.Columna);
+        }
+        public override string GenerarCodigo()
+        {
+            var value = "";
+            if (herencia == false)
+                value += "super.";
+             value += nombre + "(";
+            if (parametros != null)
+            {
+                var parametrosArray = parametros.ToArray();
+                for (int i = 0; i < parametrosArray.Length; i++)
+                {
+                    value += parametrosArray[i].GenerarCodigo();
+                    if (i < parametrosArray.Length - 1)
+                        value += ",";
+                } 
+            }
+            value += ")";
+            if (ListaDeAccesores != null)
+                foreach (var lista in ListaDeAccesores)
+                    value += lista.GenerarCodigo();
+            return value+";";
         }
 
         private void validadFinal(List<AccesorNode> ListaDeAccesoresInterna)
@@ -32,11 +56,11 @@ namespace Compiladores.Arbol.StatementNodes
             {
                 if (elementos is PuntoAccesor)
                 {
-                    if ((elementos as PuntoAccesor).identificador is IdentificadoresExpressionNode)
+                    if (((elementos as PuntoAccesor).identificador is IdentificadoresExpressionNode))
                     {
                         if (((elementos as PuntoAccesor).identificador as IdentificadoresExpressionNode).ListaDeAccesores.Count == 0)
                         {
-                            throw new SemanticoException("la identificadores debe asignarse"
+                            throw new SemanticoException(archivo+"la identificadores debe asignarse"
                                 + ((elementos as PuntoAccesor).identificador as IdentificadoresExpressionNode).nombre 
                                 + "fila" + this.token.Fila + "columna" + this.token.Columna);
                         }
@@ -46,7 +70,10 @@ namespace Compiladores.Arbol.StatementNodes
                     {
                         validadFinal(((elementos as PuntoAccesor).identificador as CallFuntionNode).ListaDeAccesores);
                     }
-                }
+                }else if( ListaDeAccesoresInterna.Last() is ArrayAccesor)
+                    throw new SemanticoException(archivo+"la identificadores debe asignarse"
+                                + ((elementos as PuntoAccesor).identificador as IdentificadoresExpressionNode).nombre
+                                + "fila" + this.token.Fila + "columna" + this.token.Columna);
             }
         }
 
@@ -110,25 +137,81 @@ namespace Compiladores.Arbol.StatementNodes
                                                     var tipo = metroParametro[z].ValidateSemantic().GetType();
                                                     var tipoB = abuscarParametro[z].tipo.ValidateSemantic().GetType();
                                                     if (tipoB != tipo)
-                                                        throw new SemanticoException("se esperaba el tipo " + tipoB + "fila " + metroParametro[z].token.Fila
+                                                        throw new SemanticoException(archivo+"se esperaba el tipo " + tipoB + "fila " + metroParametro[z].token.Fila
                                                             + "columna" + metroParametro[z].token.Columna);
                                                 }
 
                                             }
                                             if (encontro == true)
                                             {
-                                                if ((elementoClase as DeclaracionMetodo).tipo.ValidateSemantic() is ClaseTipo)
+                                                foreach (var lista in ListaDeAccesores)
+                                                {
+                                                    if ((lista is ArrayAccesor) && !((elementoClase as DeclaracionMetodo).tipo.ValidateSemantic() is ArrayTipo))
+                                                    {
+                                                        throw new SemanticoException(archivo+"la funcion no revuelve un arreglo " + nombre + "fila" + this.token.Fila + "columna" + this.token.Columna);
+                                                    }
+                                                }
+                                                var tiporeturno = (elementoClase as DeclaracionMetodo).tipo.ValidateSemantic();
+                                                if (tiporeturno is ArrayTipo && ListaDeAccesores.Count > 0)
+                                                {
+                                                    var listaDeArray = new List<TiposBases>();
+                                                    int remove = 0;
+                                                    foreach (var acessor in ListaDeAccesores)
+                                                    {
+                                                        if (acessor is ArrayAccesor)
+                                                        {
+                                                            listaDeArray.Add(acessor.ValidateSemantic());
+
+                                                        }
+
+                                                        remove++;
+                                                    }
+
+                                                    ListaDeAccesores.RemoveRange(0, remove - 1);
+
+                                                    if ((tiporeturno as ArrayTipo).cantidad.Count == listaDeArray.Count)
+                                                    {
+                                                        var cantidadArray = (tiporeturno as ArrayTipo).cantidad.ToArray().ToArray();
+                                                        var listaArray = listaDeArray.ToArray();
+                                                        for (int i = 0; i < cantidadArray.Length; i++)
+                                                        {
+                                                            if (cantidadArray[i].Count != (listaDeArray[i] as ArrayTipo).cantidad.First().Count)
+                                                                throw new SemanticoException(archivo+"se tiene que asignar el mismo tipo al arreglo " + nombre + "fila"
+                                                                         + token.Fila + "columna" + token.Columna);
+                                                        }
+                                                        tiporeturno = (tiporeturno as ArrayTipo).tipoArray;
+                                                    }
+                                                    else if ((tiporeturno as ArrayTipo).cantidad.Count >= listaDeArray.Count)
+                                                    {
+                                                        var cantidadArray = (tiporeturno as ArrayTipo).cantidad.ToArray().ToArray();
+                                                        var listaArray = listaDeArray.ToArray();
+                                                        for (int i = 0; i < listaDeArray.Count; i++)
+                                                        {
+                                                            if (cantidadArray[i].Count != (listaDeArray[i] as ArrayTipo).cantidad.First().Count)
+                                                                throw new SemanticoException(archivo+"se tiene que asignar el mismo tipo al arreglo " + nombre + "fila"
+                                                                    + token.Fila + "columna" + token.Columna);
+                                                            tiporeturno = (tiporeturno as ArrayTipo).tipoArray;
+                                                        }
+
+                                                    }
+                                                    else if ((tiporeturno as ArrayTipo).cantidad.Count < listaDeArray.Count)
+                                                        throw new SemanticoException(archivo+"el arreglo es de menos cantidad" + token.Fila + "columma" + token.Columna);
+
+                                                }
+                                                if (tiporeturno is ClaseTipo)
                                                 {
                                                     foreach (var funcion in ListaDeAccesores)
                                                     {
                                                         if (funcion is PuntoAccesor)
                                                         {
-                                                            (funcion as PuntoAccesor).clase = ((elementoClase as DeclaracionMetodo).tipo.ValidateSemantic() as ClaseTipo).nombreClase;
+                                                            (funcion as PuntoAccesor).clase = (tiporeturno as ClaseTipo).nombreClase;
                                                              funcion.ValidateSemantic();
 
                                                         }
                                                     }
                                                 }
+                                                if (!(tiporeturno is ClaseTipo) && ListaDeAccesores.Count > 0)
+                                                    throw new SemanticoException(archivo+"returna " + tiporeturno + "no se puede instaciar una funcion si no retorna una clase " + nombre + "fila" + this.token.Fila + "columna" + this.token.Columna);
                                             }
                                             
                                         }

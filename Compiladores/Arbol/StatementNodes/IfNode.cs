@@ -17,7 +17,7 @@ namespace Compiladores.Arbol.StatementNodes
         {
         var condicionalTest = expresion.ValidateSemantic();
             if (!(condicionalTest is BooleanTipo))
-                throw new SemanticoException("la condicion debe de ser booleana fila "+token.Fila+"columna"+token.Columna);
+                throw new SemanticoException(archivo+"la condicion debe de ser booleana fila "+token.Fila+"columna"+token.Columna);
             if (cuerpo != null)
             {
                 ContenidoStack.InstanceStack.Stack.Push(new TablaSimbolos());
@@ -32,6 +32,20 @@ namespace Compiladores.Arbol.StatementNodes
                 elseVariable.ValidateSemantic();
                 
             }
+        }
+        public override string GenerarCodigo()
+        {
+            string value = "if(" + expresion.GenerarCodigo() + ")";
+            value += "\n{";
+            if(cuerpo != null)
+                foreach (var lista in cuerpo)
+                {
+                    value += "\n"+lista.GenerarCodigo()+";";
+                }
+            value += "\n}";
+            if (elseVariable != null)
+                value += "\n" + elseVariable.GenerarCodigo();
+            return value;
         }
     }
 }

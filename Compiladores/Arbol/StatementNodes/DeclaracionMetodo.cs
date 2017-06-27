@@ -30,27 +30,85 @@ namespace Compiladores.Arbol.StatementNodes
             }
 
             if (modificar != "abstract")
-            foreach (var statement in cuerpo)
             {
-                if ((statement is ReturnNode) && tipo != null)
+                var encontraReturn = false;
+                foreach (var statement in cuerpo)
                 {
-                    var tipoReturnToken = (statement as ReturnNode);
-                    var tipoReturn = tipoReturnToken.expresion.ValidateSemantic();
-                    var enviar = tipo.ValidateSemantic();
-                    if (enviar is ClaseTipo && tipoReturn is ClaseTipo)
+                    if ((statement is ReturnNode))
                     {
-                        if ((tipoReturn as ClaseTipo).nombreClase != (enviar as ClaseTipo).nombreClase)
-                            throw new SemanticoException("el tipo de valor no es correcto de ve ser" + tipo.ValidateSemantic() + " fila " +
+                        var tipoReturnToken = (statement as ReturnNode);
+                        var tipoReturn = tipoReturnToken.expresion.ValidateSemantic();
+                        var enviar = tipo.ValidateSemantic();
+                        if (enviar is ClaseTipo && tipoReturn is ClaseTipo)
+                        {
+                            if ((tipoReturn as ClaseTipo).nombreClase != (enviar as ClaseTipo).nombreClase)
+                                throw new SemanticoException(archivo+"el tipo de valor returno no es correcto de ve ser" + tipo.ValidateSemantic() + " fila " +
+                                    tipoReturnToken.token.Fila + " columna " + tipoReturnToken.token.Columna);
+                        }
+                        else if ((enviar is ArrayTipo) && (tipoReturn is ArrayTipo))
+                        {
+                            var declarArray = (enviar as ArrayTipo).cantidad.ToArray();
+                            var tipoDefinionArray = (tipoReturn as ArrayTipo).cantidad.ToArray();
+                            if (tipoDefinionArray.Length != declarArray.Length)
+                                throw new SemanticoException(archivo+"se tiene que asignar el mismo tipo al arreglo " + nombre + "fila"
+                                    + tipoReturnToken.token.Fila + "columna" + tipoReturnToken.token.Columna);
+                            for (int i = 0; i < declarArray.Length; i++)
+                            {
+                                if (tipoDefinionArray[i].Count != declarArray[i].Count)
+                                    throw new SemanticoException(archivo+"no se returna el mismo tamaño de arreglo arreglo " + nombre + "fila"
+                                        + tipoReturnToken.token.Fila + "columna" + tipoReturnToken.token.Columna);
+                            }
+                         
+                        }
+                        else if (tipoReturn.GetType() != enviar.GetType())
+                            throw new SemanticoException(archivo+"el tipo de valor returno no es correcto de ve ser" + tipoReturn + " en ves de" + enviar + " fila " +
                                 tipoReturnToken.token.Fila + " columna " + tipoReturnToken.token.Columna);
+                        encontraReturn = true;
                     }
-                    else if (tipoReturn.GetType() != enviar.GetType())
-                        throw new SemanticoException("el tipo de valor no es correcto de ve ser" + tipoReturn + " en ves de" + enviar + " fila " +
-                            tipoReturnToken.token.Fila + " columna " + tipoReturnToken.token.Columna);
+                    statement.ValidateSemantic();
                 }
-                 statement.ValidateSemantic();
+                if(!(tipo.ValidateSemantic() is VoidTipo)&& encontraReturn == false)
+                    throw new SemanticoException(archivo+"se tiene que hacer retorno a una funcion" + nombre + token.Fila + " columna " + token.Columna);
+
             }
+
             ContenidoStack.InstanceStack.Stack.Pop();
         
         }
+        public override string GenerarCodigo()
+        {
+            var valor = nombre + "(";
+           if(parametros !=  null){
+               var parametosArray = parametros.ToArray();
+               for (int i = 0; i < parametosArray.Length; i++)
+               {
+                  
+                   valor += parametosArray[i].GenerarCodigo();
+                   if (i < parametosArray.Length - 1)
+                       valor += ",";
+               }
+           }
+           if (cuerpo != null)
+           {
+               valor += ")\n{";
+
+               foreach (var lista in cuerpo)
+               {
+
+                   valor += "\n" + lista.GenerarCodigo();
+
+
+
+               }
+
+               valor += "\n}";
+           }
+           else
+           {
+               valor += ";";
+           }
+           return valor;
+        }
     }
+    
 }

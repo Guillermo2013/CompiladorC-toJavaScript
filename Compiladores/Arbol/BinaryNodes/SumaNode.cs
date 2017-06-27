@@ -23,7 +23,7 @@ namespace Compiladores.Arbol.BinaryNodes
 
             if (expresion1 is EnumTipo || expresion2 is EnumTipo || expresion1 is VoidTipo || expresion2 is VoidTipo||
                 expresion1 is ClaseTipo || expresion2 is ClaseTipo)
-                throw new SemanticoException("no se puede sumar" + expresion1 + " con " + expresion2 + "fila " + token.Fila + " columna " + token.Columna);
+                throw new SemanticoException(archivo+"no se puede sumar" + expresion1 + " con " + expresion2 + "fila " + token.Fila + " columna " + token.Columna);
 
             if (expresion1 is StringTipo || expresion2 is StringTipo)
                 if (!(expresion2 is EnumTipo) && !(expresion1 is EnumTipo))
@@ -41,7 +41,11 @@ namespace Compiladores.Arbol.BinaryNodes
             if ((expresion1 is BooleanTipo && expresion2 is IntTipo) || (expresion2 is BooleanTipo && expresion1 is IntTipo))
                 return new IntTipo();
 
-            throw new SemanticoException("no se puede sumar" + expresion1 + " con " + expresion2 + "fila " + token.Fila + " columna " + token.Columna);
+            throw new SemanticoException(archivo+"no se puede sumar" + expresion1 + " con " + expresion2 + "fila " + token.Fila + " columna " + token.Columna);
+        }
+        public override string GenerarCodigo()
+        {
+            return OperadorIzquierdo.GenerarCodigo() + " " + operador + " " + OperadorDerecho.GenerarCodigo();
         }
     }
 }

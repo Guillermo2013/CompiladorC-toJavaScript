@@ -13,7 +13,11 @@ namespace Compiladores.Arbol.StatementNodes
        
         public override void ValidateSemantic()
         {
-            
+            expresion.ValidateSemantic();
+        }
+        public override string GenerarCodigo()
+        {
+            return expresion.GenerarCodigo();
         }
     }
 }

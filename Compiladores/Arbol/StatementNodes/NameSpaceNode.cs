@@ -26,9 +26,19 @@ namespace Compiladores.Arbol.StatementNodes
             {
                 ContenidoStack.InstanceStack.Stack.Push(new TablaSimbolos());
                 sentencias.ValidateSemantic();
-                ContenidoStack.InstanceStack.Stack.Pop();
+                
             }
                 
         }
+        public override string GenerarCodigo()
+        {
+            string valor = "";
+            foreach (var lista in statemenList)
+            {
+                valor += "\n"+lista.GenerarCodigo();
+            }
+            return valor;
+        }
     }
+
 }

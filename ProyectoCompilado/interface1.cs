@@ -1,10 +1,11 @@
 ﻿using System;
 
-namespace interface2namespace
+namespace interfaceNamespace
 {
-    public interface interface2
+    public  interface interface1
     {
-        int test(string a);
+        int test(int a);
         int test2(string a);
     }
 }
+

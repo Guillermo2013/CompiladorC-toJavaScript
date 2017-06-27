@@ -24,12 +24,27 @@ namespace Compiladores.Arbol.StatementNodes
                 {
                     var nombre = (Abuscar as EnumListNode).identificador;
                     if (nombre == (arrayEnum[j] as EnumListNode).identificador)
-                        throw new SemanticoException("se repitio elemento " + nombre + "fila " + arrayEnum[j].token.Fila + "columna" + arrayEnum[j].token.Columna);
+                        throw new SemanticoException(archivo+"se repitio elemento " + nombre + "fila " + arrayEnum[j].token.Fila + "columna" + arrayEnum[j].token.Columna);
                 }
                 i++;
             }
             foreach (var listaEnum in lista)
                 listaEnum.ValidateSemantic();
+        }
+        public override string GenerarCodigo()
+        {
+           string value = "var "+identificador+" = {";
+           var listaArray = lista.ToArray();
+            for(int i=0;i<listaArray.Length;i++)
+            {
+               value += listaArray[i].GenerarCodigo();
+               if (listaArray[i].asignacion == null)
+                   value += i.ToString();
+                if (i < listaArray.Length - 1)
+                    value += ",";
+            }
+            value += "};";
+            return value;
         }
     }
 }

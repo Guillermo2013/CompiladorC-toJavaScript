@@ -19,13 +19,26 @@ namespace Compiladores.Arbol.StatementNodes
             var expresionTipo = expresion.ValidateSemantic();
             foreach (CasosNode statement in casos)
             {
+                if (statement is DefaulNode)
+                    (statement as DefaulNode).cuerpo = (statement as CasosNode).cuerpo;
                 var tipocaso = statement.ValidateSemantic();
-                if (expresionTipo.GetType() != tipocaso.GetType())
-                    throw new SemanticoException("la expresion de los cases tiene que ser " + expresionTipo + "fila" + statement.expresion.token.Fila
+                
+                if (expresionTipo.GetType() != tipocaso.GetType() && !(statement is DefaulNode))
+                    throw new SemanticoException(archivo+"la expresion de los cases tiene que ser " + expresionTipo + "fila" + statement.expresion.token.Fila
                         + "columna" + statement.expresion.token.Columna );
             }
             ContenidoStack.InstanceStack.Stack.Pop();
         }
- 
+        public override string GenerarCodigo()
+        {
+            string valor = "switch("+expresion.GenerarCodigo()+")";
+            valor += "\n{";
+            foreach (var elemento in casos)
+            {
+                valor += "\n" + elemento.GenerarCodigo();
+            }
+            valor += "\n}";
+            return valor;
+        }
     }
 }

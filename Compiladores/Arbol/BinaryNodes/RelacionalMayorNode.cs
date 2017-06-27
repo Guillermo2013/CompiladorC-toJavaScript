@@ -21,8 +21,12 @@ namespace Compiladores.Arbol.BinaryNodes
             var Derecho = OperadorDerecho.ValidateSemantic();
             var Izquierdo = OperadorIzquierdo.ValidateSemantic();
             if (Derecho is EnumTipo || Izquierdo is EnumTipo || Derecho is VoidTipo || Izquierdo is VoidTipo || Derecho is ClaseTipo || Izquierdo is ClaseTipo)
-                throw new SemanticoException(" No se pude utilizar como variable " + Derecho + " con " + Izquierdo + "fila " + token.Fila + " columna " + token.Columna);
+                throw new SemanticoException(archivo+" No se pude utilizar como variable " + Derecho + " con " + Izquierdo + "fila " + token.Fila + " columna " + token.Columna);
             return new BooleanTipo();
+        }
+        public override string GenerarCodigo()
+        {
+            return OperadorIzquierdo.GenerarCodigo() + " " + operador + " " + OperadorDerecho.GenerarCodigo();
         }
     }
 }

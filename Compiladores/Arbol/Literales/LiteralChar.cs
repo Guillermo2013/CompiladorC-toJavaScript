@@ -14,5 +14,9 @@ namespace Compiladores.Arbol.Literales
         {
             return new CharTipo();
         }
+        public override string GenerarCodigo()
+        {
+            return '\'' + valor.ToString() + '\'';
+        }
     }
 }

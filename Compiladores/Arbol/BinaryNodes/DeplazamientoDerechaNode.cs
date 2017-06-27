@@ -22,10 +22,14 @@ namespace Compiladores.Arbol.BinaryNodes
             var expresion2 = OperadorIzquierdo.ValidateSemantic();
        
             if (!(expresion1 is IntTipo))
-                throw new SemanticoException(" la expresion debe ser de tipo Int ");
+                throw new SemanticoException(archivo+" la expresion debe ser de tipo Int ");
             if (expresion2 is IntTipo || expresion2 is CharTipo || expresion2 is BinarioTipo)
                 return expresion2;
-            throw new SemanticoException(" no se puede hacer corrimiento de tipos " + expresion2);
+            throw new SemanticoException(archivo+" no se puede hacer corrimiento de tipos " + expresion2);
+        }
+        public override string GenerarCodigo()
+        {
+            return OperadorIzquierdo.GenerarCodigo() + " " + operador + " " + OperadorDerecho.GenerarCodigo();
         }
     }
 }

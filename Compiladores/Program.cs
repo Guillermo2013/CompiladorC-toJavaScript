@@ -22,19 +22,35 @@ namespace Compiladores
                codigo = file.ReadToEnd().ToString();  
                var lexico = new Lexico(codigo);
                var Parser = new Parser(lexico);
+               Parser.archivo = path + "/" + f.Name;
+            
                listaArbol.Add(Parser.Code());
             }
- 
+
+           string valor = @"<!DOCTYPE html>
+<html>
+<body>
+<h2>My First Web Page</h2>
+<p>My First Paragraph.</p>
+<p id="+'\"'+"demo"+"\""+@"></p>
+<script> ";
            foreach (var listaStatement in listaArbol)
            {
               
                foreach (var statement in listaStatement)
                {
                    statement.ValidateSemantic();
+                   valor += "\n  "+statement.GenerarCodigo();
                }
                ContenidoStack._StackInstance.usingNombres = new List<string>();
            }
-     
+           path += "/archivo.js";
+           valor += @"
+</script>
+</body>
+</html> ";
+           System.IO.File.WriteAllText(path, valor);
+            
         }
     }
 }

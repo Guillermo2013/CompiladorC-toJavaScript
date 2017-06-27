@@ -24,7 +24,18 @@ namespace Compiladores.Arbol.StatementNodes
                 ContenidoStack.InstanceStack.Stack.Pop();
             }
             else
-                throw new SemanticoException("la condiciona debe de ser tipo booleano fila " + expresion.token.Fila + " columna " + expresion.token.Columna);
+                throw new SemanticoException(archivo+"la condiciona debe de ser tipo booleano fila " + expresion.token.Fila + " columna " + expresion.token.Columna);
+        }
+        public override string GenerarCodigo()
+        {
+            string valor = "while(" + expresion.GenerarCodigo() + ")";
+            valor += "\n{";
+            foreach (var elemento in cuerpo)
+            {
+                valor += "\n"+elemento.GenerarCodigo()+";";
+            }
+            valor += "\n}";
+            return valor;
         }
     }
 }

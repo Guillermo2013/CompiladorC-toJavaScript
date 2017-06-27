@@ -9,6 +9,7 @@ using Compiladores.Arbol.StatementNodes;
 using Compiladores.Semantico.Tipos;
 using Compiladores.Arbol.AccesoresNode;
 using Compiladores.Arbol.Identificadores;
+using Compiladores.Arbol.Literales;
 namespace Compiladores.Arbol
 {
     class CallFuntionNode:ExpressionNode
@@ -16,21 +17,78 @@ namespace Compiladores.Arbol
         public string nombre;
         public List<ExpressionNode> parametros;
         public List<AccesorNode> ListaDeAccesores = new List<AccesorNode>();
+
         public string claseActual;
+        public bool herencia;
+        
         public override Semantico.TiposBases ValidateSemantic()
         {
+
+         
             if (claseActual == null)
                 claseActual = ContenidoStack.InstanceStack.claseActual;
             var encontro = false;
            TiposBases tiporeturno = null;
            validadFuncionLocal(ref encontro, ref tiporeturno);
+           herencia = encontro;
            validarHerencia(ref encontro, ref tiporeturno);
             if (!encontro)
+                throw new SemanticoException(archivo+"no se encontro la funcion " + nombre + "fila" + this.token.Fila + "columna" + this.token.Columna);
+            foreach (var lista in ListaDeAccesores)
+            {
+                if ((lista is ArrayAccesor) && !(tiporeturno is ArrayTipo))
+                {
+                    throw new SemanticoException(archivo+"la funcion no revuelve un arreglo " + nombre + "fila" + this.token.Fila + "columna" + this.token.Columna);
+                }
+            }
+            int remove = 0;
+            if (tiporeturno is ArrayTipo && ListaDeAccesores.Count > 0)
+            {
+                var listaDeArray = new List<TiposBases>();
+                
+                foreach (var acessor in ListaDeAccesores)
+                { 
+                    if (acessor is ArrayAccesor)
+                    {
+                        listaDeArray.Add(acessor.ValidateSemantic());
+                        
+                    }
+                    
+                    remove++;
+                }
 
-                throw new SemanticoException("no se encontro la funcion " + nombre + "fila" + this.token.Fila + "columna" + this.token.Columna);
+             
+                    if ((tiporeturno as ArrayTipo).cantidad.Count == listaDeArray.Count)
+                    {
+                        var cantidadArray = (tiporeturno as ArrayTipo).cantidad.ToArray().ToArray();
+                        var listaArray = listaDeArray.ToArray();
+                        for (int i = 0; i < cantidadArray.Length; i++)
+                        {
+                            if (cantidadArray[i].Count != (listaDeArray[i] as ArrayTipo).cantidad.First().Count)
+                                throw new SemanticoException(archivo+"se tiene que asignar el mismo tipo al arreglo " + nombre + "fila"
+                                         + token.Fila + "columna" + token.Columna);
+                        }
+                        tiporeturno = (tiporeturno as ArrayTipo).tipoArray;
+                    }
+                    else if ((tiporeturno as ArrayTipo).cantidad.Count >= listaDeArray.Count)
+                    {
+                        var cantidadArray = (tiporeturno as ArrayTipo).cantidad.ToArray().ToArray();
+                        var listaArray = listaDeArray.ToArray();
+                        for (int i = 0; i < listaDeArray.Count; i++)
+                        {
+                            if (cantidadArray[i].Count != (listaDeArray[i] as ArrayTipo).cantidad.First().Count)
+                                throw new SemanticoException(archivo+"se tiene que asignar el mismo tipo al arreglo " + nombre + "fila"
+                                    + token.Fila + "columna" + token.Columna);
+                            (tiporeturno as ArrayTipo).cantidad.RemoveAt(i);
+                        }
 
-            if(!(tiporeturno is ClaseTipo) && ListaDeAccesores.Count > 0 )
-                throw new SemanticoException("no se puede instaciar otra llamada a funcion " + nombre + "fila" + this.token.Fila + "columna" + this.token.Columna);
+                    }
+                    else if ((tiporeturno as ArrayTipo).cantidad.Count < listaDeArray.Count)
+                        throw new SemanticoException(archivo+"el arreglo es de menos cantidad" + token.Fila + "columma" + token.Columna);
+
+            }
+            if(!(tiporeturno is ClaseTipo) && ListaDeAccesores.Count - remove> 0 )
+                throw new SemanticoException(archivo+"returna " + tiporeturno + "no se puede instaciar una funcion si no retorna una clase " + nombre + "fila" + this.token.Fila + "columna" + this.token.Columna);
             if (tiporeturno is ClaseTipo)
             {
                 foreach (var funcion in ListaDeAccesores)
@@ -44,6 +102,31 @@ namespace Compiladores.Arbol
                 }
             }
             return tiporeturno;
+        }
+        public override string GenerarCodigo()
+        {
+            var valor = "";
+            if (herencia == false)
+                valor += "super.";
+            valor += nombre + "(";
+            if (parametros != null)
+            {
+                var parametroArray = parametros.ToArray();
+                for (int i = 0; i<parametroArray.Length; i++)
+                {
+                    valor += parametroArray[i].GenerarCodigo();
+                    if(i<parametroArray.Length)
+                        valor+=",";
+                }
+            }
+            
+            valor += ")";
+            foreach (var lista in ListaDeAccesores)
+            {
+                
+                valor += lista.GenerarCodigo();
+            }
+            return valor;
         }
         private void validarHerencia(ref bool encontro, ref TiposBases tiporeturno)
         {
@@ -107,7 +190,7 @@ namespace Compiladores.Arbol
                                                     var tipo = metroParametro[z].ValidateSemantic().GetType();
                                                     var tipoB = abuscarParametro[z].tipo.ValidateSemantic().GetType();
                                                     if (tipoB != tipo)
-                                                        throw new SemanticoException("se esperaba el tipo " + tipoB + "fila " + metroParametro[z].token.Fila
+                                                        throw new SemanticoException(archivo+"se esperaba el tipo " + tipoB + "fila " + metroParametro[z].token.Fila
                                                             + "columna" + metroParametro[z].token.Columna);
                                                 }
 

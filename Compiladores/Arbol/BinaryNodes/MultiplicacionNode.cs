@@ -22,7 +22,13 @@ namespace Compiladores.Arbol.BinaryNodes
                 return new FloatTipo();
             if (expresion1 is IntTipo && expresion2 is IntTipo)
                 return new IntTipo();
-            throw new SemanticoException("no se puede restar" + expresion1 + " con " + expresion2 + "fila " + token.Fila + " columna " + token.Columna);
+            if (expresion1 is CharTipo && expresion2 is CharTipo)
+                return new IntTipo();
+            throw new SemanticoException(archivo+"no se puede restar" + expresion1 + " con " + expresion2 + "fila " + token.Fila + " columna " + token.Columna);
+        }
+        public override string GenerarCodigo()
+        {
+            return OperadorIzquierdo.GenerarCodigo() + " " + operador + " " + OperadorDerecho.GenerarCodigo();
         }
     }
 }

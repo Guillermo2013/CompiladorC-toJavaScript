@@ -9,7 +9,7 @@ namespace Compiladores
         private string _codigoFuente;
         private int _columnaActual;
         private int _FilaActual;
-        private int _cursor;
+        public int _cursor;
         private Dictionary<string, TokenTipos> _palabrasReservadas;
         private Dictionary<string, TokenTipos> simbolosUnarios;
         private Dictionary<string, TokenTipos> simbolosBinarios;
@@ -80,66 +80,36 @@ namespace Compiladores
             _palabrasReservadas.Add("byte", TokenTipos.PalabraReservadaByte);
             _palabrasReservadas.Add("case", TokenTipos.PalabraReservadaCase);
             _palabrasReservadas.Add("char", TokenTipos.PalabraReservadaChar);
-            _palabrasReservadas.Add("checked", TokenTipos.PalabraReservadaChecked);
             _palabrasReservadas.Add("class", TokenTipos.PalabraReservadaClase);
-            _palabrasReservadas.Add("catch", TokenTipos.PalabraReservadaCatch);
-            _palabrasReservadas.Add("const", TokenTipos.PalabraReservadaConst);
             _palabrasReservadas.Add("continue", TokenTipos.PalabraReservadaContinue);
             _palabrasReservadas.Add("decimal", TokenTipos.PalabraReservadaDecimal);
             _palabrasReservadas.Add("default", TokenTipos.PalabraReservadaDefault);
-            _palabrasReservadas.Add("delegado", TokenTipos.PalabraReservadaDelegado);
             _palabrasReservadas.Add("do", TokenTipos.PalabraReservadaDo);
             _palabrasReservadas.Add("else", TokenTipos.PalabraReservadaElse);
             _palabrasReservadas.Add("enum", TokenTipos.PalabraReservadaEnum);
-            _palabrasReservadas.Add("event", TokenTipos.PalabraReservadaEvent);
-            _palabrasReservadas.Add("explicit", TokenTipos.PalabraReservadaExplicit);
-            _palabrasReservadas.Add("extern", TokenTipos.PalabraReservadaExtern);
             _palabrasReservadas.Add("false", TokenTipos.PalabraReservadaFalse);
-            _palabrasReservadas.Add("finally", TokenTipos.PalabraReservadaFinally);
-            _palabrasReservadas.Add("fixed", TokenTipos.PalabraReservadaFixed);
             _palabrasReservadas.Add("float", TokenTipos.PalabraReservadaFloat);
             _palabrasReservadas.Add("for", TokenTipos.PalabraReservadaFor);
             _palabrasReservadas.Add("foreach", TokenTipos.PalabraReservadaForeach);
-            _palabrasReservadas.Add("goto", TokenTipos.PalabraReservadaGoto);
             _palabrasReservadas.Add("if", TokenTipos.PalabraReservadaIf);
-            _palabrasReservadas.Add("implicit", TokenTipos.PalabraReservadaImplicit);
             _palabrasReservadas.Add("in", TokenTipos.PalabraReservadaIn);
             _palabrasReservadas.Add("int", TokenTipos.PalabraReservadaInt);
             _palabrasReservadas.Add("interface", TokenTipos.PalabraReservadaInterfaz);
-            _palabrasReservadas.Add("internal", TokenTipos.PalabraReservadaInternal);
-            _palabrasReservadas.Add("es", TokenTipos.PalabraReservadaEs);
             _palabrasReservadas.Add("is", TokenTipos.PalabraReservadaIs);
-            _palabrasReservadas.Add("bloquear", TokenTipos.PalabraReservadaBloquear);
-            _palabrasReservadas.Add("long", TokenTipos.PalabraReservadaLong);
             _palabrasReservadas.Add("new", TokenTipos.PalabraReservadaNew);
             _palabrasReservadas.Add("null", TokenTipos.PalabraReservadaNull);
             _palabrasReservadas.Add("override", TokenTipos.PalabraReservadaOverride);
-            _palabrasReservadas.Add("params", TokenTipos.PalabraReservadaParams);
             _palabrasReservadas.Add("private", TokenTipos.PalabraReservadaPrivate);
             _palabrasReservadas.Add("protected", TokenTipos.PalabraReservadaProtected);
             _palabrasReservadas.Add("public", TokenTipos.PalabraReservadaPublic);
-            _palabrasReservadas.Add("readonly", TokenTipos.PalabraReservadaReadonly);
             _palabrasReservadas.Add("ref", TokenTipos.PalabraReservadaRef);
             _palabrasReservadas.Add("return", TokenTipos.PalabraReservadaReturn);
-            _palabrasReservadas.Add("sbyte", TokenTipos.PalabraReservadaSbyte);
-            _palabrasReservadas.Add("sealed", TokenTipos.PalabraReservadaSealed);
-            _palabrasReservadas.Add("short", TokenTipos.PalabraReservadaShort);
-            _palabrasReservadas.Add("sizeof", TokenTipos.PalabraReservadaSizeof);
-            _palabrasReservadas.Add("stackalloc", TokenTipos.PalabraReservadaStackalloc);
             _palabrasReservadas.Add("static", TokenTipos.PalabraReservadaStatic);
             _palabrasReservadas.Add("string", TokenTipos.PalabraReservadaString);
             _palabrasReservadas.Add("struct", TokenTipos.PalabraReservadaStruct);
             _palabrasReservadas.Add("switch", TokenTipos.PalabraReservadaSwitch);
             _palabrasReservadas.Add("this", TokenTipos.PalabraReservadaThis);
-            _palabrasReservadas.Add("throw", TokenTipos.PalabraReservadaThrow);
             _palabrasReservadas.Add("true", TokenTipos.PalabraReservadaTrue);
-            _palabrasReservadas.Add("try", TokenTipos.PalabraReservadaTry);
-            _palabrasReservadas.Add("typeof", TokenTipos.PalabraReservadaTypeof);
-            _palabrasReservadas.Add("uint", TokenTipos.PalabraReservadaUint);
-            _palabrasReservadas.Add("ulong", TokenTipos.PalabraReservadaUlong);
-            _palabrasReservadas.Add("unchecked", TokenTipos.PalabraReservadaUnchecked);
-            _palabrasReservadas.Add("unsafe", TokenTipos.PalabraReservadaUnsafe);
-            _palabrasReservadas.Add("ushort", TokenTipos.PalabraReservadaUshort);
             _palabrasReservadas.Add("using", TokenTipos.PalabraReservadaUsing);
             _palabrasReservadas.Add("void", TokenTipos.PalabraReservadaVoid);
             _palabrasReservadas.Add("virtual", TokenTipos.PalabraReservadaVirtual);
@@ -249,7 +219,7 @@ namespace Compiladores
                 if (lexema.Length == 1)
                 {
                     _columnaActual++;
-                    return new Token { Tipo = TokenTipos.LiteralChar, Lexema = '\'' + lexema + '\'', Columna = colummnaT, Fila = _FilaActual };
+                    return new Token { Tipo = TokenTipos.LiteralChar, Lexema =  lexema , Columna = colummnaT, Fila = _FilaActual };
                 } if (lexema.Length > 1 && lexema.Contains('\\'))
                 {
                     simboloTemporal = ObtenerSimboloActual();
@@ -258,7 +228,7 @@ namespace Compiladores
                     {
                         _cursor++;
                         _columnaActual += lexema.Length;
-                        return new Token { Tipo = TokenTipos.LiteralChar, Lexema = '\'' + lexema + '\'', Columna = colummnaT, Fila = _FilaActual };
+                        return new Token { Tipo = TokenTipos.LiteralChar, Lexema =  lexema , Columna = colummnaT, Fila = _FilaActual };
                     }   
                 }
             }

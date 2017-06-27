@@ -21,7 +21,11 @@ namespace Compiladores.Arbol.BinaryNodes
             var expresion2 = OperadorIzquierdo.ValidateSemantic();
             if (expresion1 is BooleanTipo && expresion2 is BooleanTipo)
                 return new BooleanTipo();
-            throw new SemanticoException(" las expresiones tiene que ser booleanas " + "fila " + token.Fila + " columna " + token.Columna);
+            throw new SemanticoException(archivo+" las expresiones tiene que ser booleanas " + "fila " + token.Fila + " columna " + token.Columna);
+        }
+        public override string GenerarCodigo()
+        {
+            return OperadorIzquierdo.GenerarCodigo() + " " + operador + " " + OperadorDerecho.GenerarCodigo();
         }
     }
 }

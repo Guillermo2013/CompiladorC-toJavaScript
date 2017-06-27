@@ -37,7 +37,7 @@ namespace Compiladores.Arbol.StatementNodes
                             for (int z= 0; z < abuscarParametro.Length; z++)
                             {
                                 if (abuscarParametro[i].tipo.ValidateSemantic().GetType() != metroParametro[i].tipo.ValidateSemantic().GetType())
-                                    throw new SemanticoException("no se puede redefenir el member llamado " + nombre + "fila" + Abuscar.token.Fila + "columna" + Abuscar.token.Columna);
+                                    throw new SemanticoException(archivo+"no se puede redefenir el member llamado " + nombre + "fila" + Abuscar.token.Fila + "columna" + Abuscar.token.Columna);
                             }
                             
                            
@@ -51,6 +51,10 @@ namespace Compiladores.Arbol.StatementNodes
             
             
         }
+        public override string GenerarCodigo()
+        {
+            return "";
+        }
 
         private void validateHerenciaNombre()
         {
@@ -63,7 +67,7 @@ namespace Compiladores.Arbol.StatementNodes
                 {
                     var nombre = (Abuscar as IdentificadoresExpressionNode).nombre;
                     if (nombre == (herenciaArray[j] as IdentificadoresExpressionNode).nombre)
-                        throw new SemanticoException("no repetiste interface" + nombre + "fila " + herenciaArray[j].token.Fila + "columna" + herenciaArray[j].token.Columna);
+                        throw new SemanticoException(archivo+"no repetiste interface" + nombre + "fila " + herenciaArray[j].token.Fila + "columna" + herenciaArray[j].token.Columna);
                 }
                 i++;
             }
@@ -86,13 +90,13 @@ namespace Compiladores.Arbol.StatementNodes
                                 {
                                     encontrado = true;
                                     if ((listaclase as InterfaceNode).encasulamiento != "public" && (listaclase as InterfaceNode).encasulamiento != "")
-                                        throw new SemanticoException("la inferzace no es publica " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
+                                        throw new SemanticoException(archivo+"la inferzace no es publica " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
                                    
                                 }
                     }
                 
                     if (encontrado == false)
-                        throw new SemanticoException("no se encuentra la interface o no lo es " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
+                        throw new SemanticoException(archivo+"no se encuentra la interface o no lo es " + herenciaNombre + " fila" + token.Fila + "columna" + token.Columna);
                 }
 
             }

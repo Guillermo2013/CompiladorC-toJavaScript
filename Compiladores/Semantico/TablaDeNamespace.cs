@@ -12,6 +12,7 @@ namespace Compiladores.Semantico
     {
         public static TablaDeNamespace _instance = null;
         public Dictionary<string,List<StatementNode>> Tabla;
+        public string archivo;
         public TablaDeNamespace()
         {
             Tabla = new Dictionary<string, List<StatementNode>>();
@@ -80,7 +81,7 @@ namespace Compiladores.Semantico
                             nombreRepetido = (arraStatement[j] as ClassNode).nombre;
                         
                         if(nombreRepetido == Abuscar)
-                            throw new SemanticoException("la interface ,clases o enum no tiene que tener el mismo nombre" + nombreRepetido 
+                            throw new SemanticoException( arraStatement[i].archivo+"la interface ,clases o enum no tiene que tener el mismo nombre" + nombreRepetido 
                                 + " en el namespace" + name + " fila " + arraStatement[i].token.Fila + " columna" + arraStatement[i].token.Columna);
                     }
                     i++;

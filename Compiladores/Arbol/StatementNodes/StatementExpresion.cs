@@ -16,7 +16,11 @@ namespace Compiladores.Arbol.StatementNodes
         public List<ExpressionNode> expresionP;
         public override void ValidateSemantic()
         {
-            throw new NotImplementedException();
+            expresion.ValidateSemantic();
         }
+        public override string GenerarCodigo()
+        {
+            return "";
+        }       
     }
 }

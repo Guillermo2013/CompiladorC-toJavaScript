@@ -18,9 +18,16 @@ namespace Compiladores.Arbol.StatementNodes
             {
                 var tipo = asignacion.ValidateSemantic();
                 if (!(tipo is IntTipo))
-                    throw new SemanticoException("la expresion de " + identificador + " debe ser numerica fila " + token.Fila + " colunma" + token.Columna);
+                    throw new SemanticoException(archivo+"la expresion de " + identificador + " debe ser numerica fila " + token.Fila + " colunma" + token.Columna);
             }
           
+        }
+        public override string GenerarCodigo()
+        {
+            string value = identificador+" : ";
+            if (asignacion != null)
+                value += asignacion.GenerarCodigo();
+            return value;
         }
     }
 }

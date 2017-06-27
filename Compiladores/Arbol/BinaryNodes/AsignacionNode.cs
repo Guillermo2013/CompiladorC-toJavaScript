@@ -16,7 +16,7 @@ namespace Compiladores.Arbol.BinaryNodes
                 (OperadorDerecho as CallFuntionNode).claseActual = ContenidoStack._StackInstance.claseActual;
           
             if (!(OperadorIzquierdo is IdentificadoresExpressionNode))
-                throw new SemanticoException("no se puede asignar literales  fila " + token.Fila + " columna " + token.Columna);
+                throw new SemanticoException(archivo+"no se puede asignar literales  fila " + token.Fila + " columna " + token.Columna);
             var expresion1 = OperadorDerecho.ValidateSemantic();
             if (OperadorIzquierdo == null)
                 return expresion1;
@@ -24,7 +24,12 @@ namespace Compiladores.Arbol.BinaryNodes
             if (expresion1.GetType() == expresion2.GetType())
                 return expresion2;
 
-            throw new SemanticoException("no se puede asignar" + expresion1 + " con " + expresion2 + " fila " + token.Fila + " columna " + token.Columna);
+            throw new SemanticoException(archivo+"no se puede asignar" + expresion1 + " con " + expresion2 + " fila " + token.Fila + " columna " + token.Columna);
+        }
+        public override string GenerarCodigo()
+        {
+            
+             return OperadorIzquierdo.GenerarCodigo() +" "+ operador + " "+ OperadorDerecho.GenerarCodigo();
         }
     }
 }

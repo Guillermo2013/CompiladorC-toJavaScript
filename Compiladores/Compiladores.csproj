@@ -63,6 +63,7 @@
     <Compile Include="Arbol\Identificadores\IdentificadoresStatementNode.cs" />
     <Compile Include="Arbol\Literales\ArrayNode.cs" />
     <Compile Include="Arbol\StatementNodes\AssignasionVariable.cs" />
+    <Compile Include="Arbol\StatementNodes\AsStatemetNode.cs" />
     <Compile Include="Arbol\StatementNodes\BreakNode.cs" />
     <Compile Include="Arbol\StatementNodes\CallFuncionStatementNode.cs" />
     <Compile Include="Arbol\StatementNodes\ContinueNode.cs" />
@@ -120,6 +121,7 @@
     <Compile Include="Arbol\StatementNodes\ParametrosNode.cs" />
     <Compile Include="Arbol\StatementNodes\StatementExpresion.cs" />
     <Compile Include="Arbol\StatementNodes\SwitchNode.cs" />
+    <Compile Include="Arbol\StatementNodes\ThisStatementNode.cs" />
     <Compile Include="Arbol\StatementNodes\UnaryStatemetNode.cs" />
     <Compile Include="Arbol\StatementNodes\UsingNode.cs" />
     <Compile Include="Arbol\StatementNodes\WhileNode.cs" />

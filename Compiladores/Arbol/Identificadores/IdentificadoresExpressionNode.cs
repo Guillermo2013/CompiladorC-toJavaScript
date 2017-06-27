@@ -15,6 +15,8 @@ namespace Compiladores.Arbol.Identificadores
     {
         public string nombre;
         public List<AccesorNode> ListaDeAccesores = new List<AccesorNode>();
+        bool tipoLocal =false;
+        bool tipoHerencia = false;
         public override TiposBases ValidateSemantic()
         {
             TiposBases tipo = null;
@@ -24,8 +26,13 @@ namespace Compiladores.Arbol.Identificadores
 
             if (tipo == null)
             {
+                
                 tipo = variableLocal(tipo);
+                if (tipo != null)
+                    tipoLocal = true;
                 tipo = validarHerencia(tipo);
+                if (tipo != null)
+                    tipoHerencia = true;
             }
             if(tipo == null){
                 tipo = enumVariable();
@@ -33,13 +40,53 @@ namespace Compiladores.Arbol.Identificadores
             if (tipo is EnumTipo)
                 return tipo;
             if(tipo == null)
-                throw new SemanticoException("no existe la variable " + nombre + "fila" + token.Fila + "columna" + token.Columna);
-            if (ListaDeAccesores.Count == 0)
+                throw new SemanticoException(archivo+"no existe la variable " + nombre + "fila" + token.Fila + "columna" + token.Columna);
+
+            if (tipo is ArrayTipo && ListaDeAccesores.Count > 0)
+            {
+                var listaDeArray = new List<TiposBases>();
+                foreach (var acessor in ListaDeAccesores)
+                {
+                    if (acessor is ArrayAccesor)
+                    {
+                        listaDeArray.Add(acessor.ValidateSemantic());
+                    }
+                }
+                if ((tipo as ArrayTipo).cantidad.Count == listaDeArray.Count)
+                {
+                    var cantidadArray = (tipo as ArrayTipo).cantidad.ToArray().ToArray();
+                    var listaArray = listaDeArray.ToArray();
+                    for (int i = 0; i < cantidadArray.Length; i++)
+                    {
+                        if (cantidadArray[i].Count != (listaDeArray[i] as ArrayTipo).cantidad.First().Count)
+                            throw new SemanticoException(archivo+"se tiene que asignar el mismo tipo al arreglo " + nombre + "fila"
+                                     + token.Fila + "columna" + token.Columna);
+                    }
+                    tipo = (tipo as ArrayTipo).tipoArray;
+                }
+                else if ((tipo as ArrayTipo).cantidad.Count >= listaDeArray.Count)
+                {
+                    var cantidadArray = (tipo as ArrayTipo).cantidad.ToArray().ToArray();
+                    var listaArray = listaDeArray.ToArray();
+                    for (int i = 0; i < listaDeArray.Count; i++)
+                    {
+                        if (cantidadArray[i].Count != (listaDeArray[i] as ArrayTipo).cantidad.First().Count)
+                            throw new SemanticoException(archivo+"se tiene que asignar el mismo tipo al arreglo " + nombre + "fila"
+                                + token.Fila + "columna" + token.Columna);
+                        (tipo as ArrayTipo).cantidad.RemoveAt(i);
+                    }
+
+                }
+                else if ((tipo as ArrayTipo).cantidad.Count < listaDeArray.Count)
+                    throw new SemanticoException(archivo+"el arreglo es de menos cantidad" + token.Fila + "columma" + token.Columna);
+            }
+            else if (ListaDeAccesores.Count == 0)
             {
                return tipo;
             }
             else  if(!(tipo is ClaseTipo) && ListaDeAccesores.Count > 0)
-                throw new SemanticoException("no la variable se asigna  " + nombre + "fila" + token.Fila + "columna" + token.Columna);
+                throw new SemanticoException(archivo+"no la variable se asigna  " + nombre + "fila" + token.Fila + "columna" + token.Columna);
+            if ((tipo is ClaseTipo) && ListaDeAccesores.Count > 0)
             foreach (var accesores in ListaDeAccesores)
             {
                 if (accesores is PuntoAccesor)
@@ -48,10 +95,24 @@ namespace Compiladores.Arbol.Identificadores
                     tipo = accesores.ValidateSemantic();
 
                 }
-            } 
+            }
             return tipo;
         }
 
+        public override string GenerarCodigo()
+        {
+            string valor = "";
+            if (tipoLocal == true)
+                valor += "this.";
+            else if (tipoHerencia == true)
+                valor += "super.";
+            valor += nombre;
+            foreach (var lista in ListaDeAccesores)
+            {
+                valor += lista.GenerarCodigo();
+            }
+            return valor;
+        }
         private TiposBases enumVariable()
         {
             foreach (var usingList in ContenidoStack._StackInstance.usingNombres)
@@ -67,7 +128,7 @@ namespace Compiladores.Arbol.Identificadores
                             {
                                 if (ListaDeAccesores.Count == 0)
                                 {
-                                    throw new SemanticoException("el enum " + nombre + "no se puede usar como variable fila" + token.Fila + "columna" + token.Columna);
+                                    throw new SemanticoException(archivo+"el enum " + nombre + "no se puede usar como variable fila" + token.Fila + "columna" + token.Columna);
                                 }
                                 else if (ListaDeAccesores.Count == 1)
                                 {
@@ -82,17 +143,17 @@ namespace Compiladores.Arbol.Identificadores
                                                 return new EnumTipo() { nombreClase = nombre};
                                         } 
                                         if(encontrado == false)
-                                            throw new SemanticoException("el enum " + ((ListaDeAccesores[0] as PuntoAccesor).identificador as IdentificadoresExpressionNode).nombre
+                                            throw new SemanticoException(archivo+"el enum " + ((ListaDeAccesores[0] as PuntoAccesor).identificador as IdentificadoresExpressionNode).nombre
                                                 + "no se puede usar como arreglo fila"    + token.Fila + "columna" + token.Columna);
                                         }
                                         else
                                         {
-                                            throw new SemanticoException("el enum " + nombre + "no se puede llamar funciones fila" + token.Fila + "columna" + token.Columna);
+                                            throw new SemanticoException(archivo+"el enum " + nombre + "no se puede llamar funciones fila" + token.Fila + "columna" + token.Columna);
                                         }
                                     }
                                     else
                                     {
-                                        throw new SemanticoException("el enum " + nombre + "no se puede usar como arreglo fila" + token.Fila + "columna" + token.Columna);
+                                        throw new SemanticoException(archivo+"el enum " + nombre + "no se puede usar como arreglo fila" + token.Fila + "columna" + token.Columna);
                                     }
 
                                 }
@@ -161,5 +222,6 @@ namespace Compiladores.Arbol.Identificadores
             }
             return tipo;
         }
+       
     }
 }

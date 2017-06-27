@@ -17,5 +17,9 @@ namespace Compiladores.Arbol.StatementNodes
             return  tipo.ValidateSemantic();
             
         }
+        public override string GenerarCodigo()
+        {
+            return nombre;
+        }
     }
 }

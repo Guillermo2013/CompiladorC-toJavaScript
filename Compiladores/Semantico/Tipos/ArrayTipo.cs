@@ -10,6 +10,7 @@ namespace Compiladores.Semantico.Tipos
     public class ArrayTipo:TiposBases
     {
         public TiposBases tipoArray;
-        public int cantidad;
+        public List <List<int>> cantidad = new List<List<int>>();
+        
     }
 }

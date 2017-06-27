@@ -27,13 +27,17 @@ namespace Compiladores.Arbol.BinaryNodes
             if (OperadorIzquierdo == null)
                 return Derecho;
             if (!(OperadorIzquierdo is IdentificadoresExpressionNode))
-                throw new SemanticoException("no se puede asignar literales  fila " + token.Fila + " columna " + token.Columna);
+                throw new SemanticoException(archivo+"no se puede asignar literales  fila " + token.Fila + " columna " + token.Columna);
             var Izquierdo = OperadorIzquierdo.ValidateSemantic();
             if (!(Derecho is IntTipo))
-                throw new SemanticoException(" El incremeto debe ser de tipo int fila " + OperadorDerecho.token.Fila + " columna +" + OperadorDerecho.token.Columna);
+                throw new SemanticoException(archivo+" El incremeto debe ser de tipo int fila " + OperadorDerecho.token.Fila + " columna +" + OperadorDerecho.token.Columna);
             if (Izquierdo is IntTipo || Izquierdo is CharTipo)
                 return new IntTipo();
-            throw new SemanticoException("El tipo de dato no puede hacerse corrimiento Derecha  fila " + token.Fila + " columna " + token.Columna);
+            throw new SemanticoException(archivo+"El tipo de dato no puede hacerse corrimiento Derecha  fila " + token.Fila + " columna " + token.Columna);
+        }
+        public override string GenerarCodigo()
+        {
+            return OperadorIzquierdo.GenerarCodigo() + " " + operador + " " + OperadorDerecho.GenerarCodigo();
         }
         
     }

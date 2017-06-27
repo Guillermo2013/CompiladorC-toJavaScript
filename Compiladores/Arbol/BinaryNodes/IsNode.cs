@@ -19,12 +19,16 @@ namespace Compiladores.Arbol.BinaryNodes
                 (OperadorDerecho as CallFuntionNode).claseActual = ContenidoStack._StackInstance.claseActual;
 
             if (!(OperadorIzquierdo is IdentificadoresExpressionNode))
-                throw new SemanticoException("no se puede comparar literales  fila " + token.Fila + " columna " + token.Columna);
+                throw new SemanticoException(archivo+"no se puede comparar literales  fila " + token.Fila + " columna " + token.Columna);
             var expresion1 = OperadorIzquierdo.ValidateSemantic();
             var expresion2 = OperadorDerecho.ValidateSemantic();
-            
+           
         
             return new BooleanTipo();
+        }
+        public override string GenerarCodigo()
+        {
+            return OperadorIzquierdo.GenerarCodigo() + " " + "==="+ " " + OperadorDerecho.GenerarCodigo();
         }
        
     }

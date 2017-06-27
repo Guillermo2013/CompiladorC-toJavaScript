@@ -12,19 +12,20 @@ namespace Compiladores.Arbol.StatementNodes
         public  List<StatementNode> cuerpo;
         public override TiposBases ValidateSemantic()
         {
+            if(cuerpo != null ) 
             foreach (var statement in cuerpo)
                 statement.ValidateSemantic();
-            return null;
+            return new TiposBases();
         }
-        public abstract class Class1 : Class2
+        public override string GenerarCodigo()
         {
-            public abstract int funcion();
-            int test;
-        }
-        public class Class2
-        {
-           public int funcion2() { return 0; }
-           public int test2;
+            string value = "default:";
+            if (cuerpo != null) 
+            foreach (var list in cuerpo)
+            {
+                value += "\n" + list.GenerarCodigo();
+            }
+            return value;
         }
     }
 }

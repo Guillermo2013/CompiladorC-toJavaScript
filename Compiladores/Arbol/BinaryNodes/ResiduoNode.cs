@@ -26,9 +26,12 @@ namespace Compiladores.Arbol.BinaryNodes
                 if (expresion1 is IntTipo || expresion2 is IntTipo)
                     return new IntTipo();
             }
-            int aa = a()<<1;
-            throw new SemanticoException("no se puede obtener residuo de esta division " + expresion1 + " con " + expresion2 + "fila " + token.Fila + " columna " + token.Columna);
+           
+            throw new SemanticoException(archivo+"no se puede obtener residuo de esta division " + expresion1 + " con " + expresion2 + "fila " + token.Fila + " columna " + token.Columna);
         }
-        int a() { return 0; }
+        public override string GenerarCodigo()
+        {
+            return OperadorIzquierdo.GenerarCodigo() + " " + operador + " " + OperadorDerecho.GenerarCodigo();
+        }
     }
 }

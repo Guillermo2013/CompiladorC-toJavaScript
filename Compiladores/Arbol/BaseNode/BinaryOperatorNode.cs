@@ -15,6 +15,10 @@ namespace Compiladores.Arbol.BaseNode
         {
             throw new NotImplementedException();
         }
+        public override string GenerarCodigo()
+        {
+            return "";
+        }
 
     }
 }

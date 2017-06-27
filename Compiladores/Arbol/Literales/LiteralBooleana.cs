@@ -15,5 +15,9 @@ namespace Compiladores.Arbol.Literales
         {
             return new BooleanTipo();
         }
+        public override string GenerarCodigo()
+        {
+            return valor.ToString();
+        }
     }
 }

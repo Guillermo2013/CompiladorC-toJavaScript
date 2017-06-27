@@ -22,7 +22,7 @@ namespace Compiladores.Arbol.StatementNodes
             {
                 TiposBases funcion = validarFuncion();
                 if (id.GetType() != funcion.GetType())
-                    throw new SemanticoException("no se puede asignar" + funcion + "a "+id + "fila" + expresion.token.Fila + "columna" + expresion.token.Columna);
+                    throw new SemanticoException(archivo+"no se puede asignar" + funcion + "a "+id + "fila" + expresion.token.Fila + "columna" + expresion.token.Columna);
             }else{
                 if(expresion is AutoDeplazamientoDerechaNode||expresion is AutoDeplazamientoIzquierdaNode || expresion is AutoOperacionAndPorBitNode||
                     expresion is AutoOperacionDivisionNode || expresion is AutoOperacionMultiplicacionNode || expresion is AutoOperacionOExclusivoPorBitNode||
@@ -37,21 +37,51 @@ namespace Compiladores.Arbol.StatementNodes
                     if ((id is ClaseTipo && expresionTipo is ClaseTipo))
                     {
                         if ((id as ClaseTipo).nombreClase != (expresionTipo as ClaseTipo).nombreClase)
-                            throw new SemanticoException("se tiene que asignar el mismo tipo " + (id as EnumTipo).nombreClase + "fila"
+                            throw new SemanticoException(archivo+"se tiene que asignar el mismo tipo " + (id as EnumTipo).nombreClase + "fila"
                                 + expresion.token.Fila + "columna" + expresion.token.Columna);
                     }
                     else if ((id is EnumTipo && expresionTipo is EnumTipo))
                     {
                         if ((id as EnumTipo).nombreClase != (expresionTipo as EnumTipo).nombreClase)
-                            throw new SemanticoException("se tiene que asignar el mismo tipo " + (id as EnumTipo).nombreClase + "fila"
+                            throw new SemanticoException(archivo+"se tiene que asignar el mismo tipo " + (id as EnumTipo).nombreClase + "fila"
                                 + expresion.token.Fila + "columna" + expresion.token.Columna);
                     }
+                    else if ((id is ArrayTipo) && (expresionTipo is ArrayTipo))
+                    {
+                        var declarArray = (id as ArrayTipo).cantidad.ToArray();
+                        var tipoDefinionArray = (expresionTipo as ArrayTipo).cantidad.ToArray();
+                        if (tipoDefinionArray.Length != declarArray.Length)
+                            throw new SemanticoException(archivo+"se tiene que asignar el mismo tipo al arreglo " + identificador.nombre + "fila"
+                                + identificador.token.Fila + "columna" + identificador.token.Columna);
+                       
+                        for (int i = 0; i < declarArray.Length; i++)
+                        {
+                            if (tipoDefinionArray[i].Count != declarArray[i].Count)
+                                throw new SemanticoException(archivo+"se tiene que asignar el mismo tipo al arreglo " + identificador.nombre + "fila"
+                                    + identificador.token.Fila + "columna" + identificador.token.Columna);
+                        }
+                      
+                    }
                     if (id.GetType() != expresionTipo.GetType())
-                        throw new SemanticoException("no se puede asignar" + expresionTipo + "a " + id + "fila" + expresion.token.Fila + "columna" + expresion.token.Columna);
+                        throw new SemanticoException(archivo+"no se puede asignar" + expresionTipo + "a " + id + "fila" + expresion.token.Fila + "columna" + expresion.token.Columna);
                 }
                
             }
             
+        }
+        public override string GenerarCodigo()
+        {
+            if (expresion is AutoDeplazamientoDerechaNode || expresion is AutoDeplazamientoIzquierdaNode || expresion is AutoOperacionAndPorBitNode ||
+                     expresion is AutoOperacionDivisionNode || expresion is AutoOperacionMultiplicacionNode || expresion is AutoOperacionOExclusivoPorBitNode ||
+                     expresion is AutoOperacionOrPorBitNode || expresion is AutoOperacionResiduoNode || expresion is AutoOperacionRestaNode || expresion is AutoOperacionSumaNode)
+            {
+                (expresion as BinaryOperatorNode).OperadorIzquierdo = identificador;
+                return expresion.GenerarCodigo() + ";";
+            }
+            else
+            {
+                return identificador.GenerarCodigo() + " = " + expresion.GenerarCodigo()+";";
+            }
         }
         public TiposBases validarFuncion()
         {
@@ -87,7 +117,7 @@ namespace Compiladores.Arbol.StatementNodes
                                                     var tipo = metroParametro[z].ValidateSemantic().GetType();
                                                     var tipoB = abuscarParametro[z].tipo.ValidateSemantic().GetType();
                                                     if (tipoB != tipo)
-                                                        throw new SemanticoException("se esperaba el tipo " + tipoB + "fila " + metroParametro[z].token.Fila
+                                                        throw new SemanticoException(archivo+"se esperaba el tipo " + tipoB + "fila " + metroParametro[z].token.Fila
                                                             + "columna" + metroParametro[z].token.Columna);
                                                 }
 
@@ -96,7 +126,7 @@ namespace Compiladores.Arbol.StatementNodes
                                     }
                                 }
                                 if (!encontro)
-                                    throw new SemanticoException("no se encontro la funcion " + funcion.nombre + "fila" + this.token.Fila + "columna" + this.token.Columna);
+                                    throw new SemanticoException(archivo+"no se encontro la funcion " + funcion.nombre + "fila" + this.token.Fila + "columna" + this.token.Columna);
                                 
                             }
                     }

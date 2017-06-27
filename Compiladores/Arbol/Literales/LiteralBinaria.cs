@@ -15,5 +15,9 @@ namespace Compiladores.Arbol.Literales
         {
             return new BinarioTipo();
         }
+        public override string GenerarCodigo()
+        {
+            return valor.ToString().Replace("_","");
+        }
     }
 }
